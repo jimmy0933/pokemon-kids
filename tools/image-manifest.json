@@ -12,6 +12,12 @@
     "bytes": 84527
   },
   {
+    "id": 3,
+    "name": "妙蛙花",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/0186d64c5773c8d3d03cd05dc79574b2d2798d4f.png",
+    "bytes": 93234
+  },
+  {
     "id": 4,
     "name": "小火龍",
     "source": "https://tw.portal-pokemon.com/images/pokedex/d0ee81f16175c97770192fb691fdda8da1f4f349.png",
@@ -22,6 +28,12 @@
     "name": "火恐龍",
     "source": "https://tw.portal-pokemon.com/images/pokedex/285395ca77d82861fd30cea64567021a50c1169c.png",
     "bytes": 77584
+  },
+  {
+    "id": 6,
+    "name": "噴火龍",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/2050f1fd1283f473d7d048f8631712e7e003f802.png",
+    "bytes": 91886
   },
   {
     "id": 7,
@@ -36,10 +48,22 @@
     "bytes": 82022
   },
   {
+    "id": 9,
+    "name": "水箭龜",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/2fe157db59153af8abd636ab03c7df6f28b08242.png",
+    "bytes": 84052
+  },
+  {
     "id": 10,
     "name": "綠毛蟲",
     "source": "https://tw.portal-pokemon.com/images/pokedex/68f0cec6bcba20a0c53db3d8cfce81bd319d2c82.png",
     "bytes": 63044
+  },
+  {
+    "id": 11,
+    "name": "鐵甲蛹",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/05fd4676fa4a4b58288510a97a5211e066e02464.png",
+    "bytes": 55624
   },
   {
     "id": 12,
@@ -48,10 +72,34 @@
     "bytes": 81335
   },
   {
+    "id": 13,
+    "name": "獨角蟲",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/5ae74d403ec682eaf13e066850afd4b0c20d85f7.png",
+    "bytes": 62239
+  },
+  {
+    "id": 14,
+    "name": "鐵殼蛹",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/dd41f31a3c97f1f9d998361b125362584873157b.png",
+    "bytes": 69348
+  },
+  {
+    "id": 15,
+    "name": "大針蜂",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/70f4206271b72492c9ba71d708d6183a80ba0e96.png",
+    "bytes": 78268
+  },
+  {
     "id": 16,
     "name": "波波",
     "source": "https://tw.portal-pokemon.com/images/pokedex/0e7c6e616404c683f00701b591eeab56e465641a.png",
     "bytes": 69300
+  },
+  {
+    "id": 17,
+    "name": "比比鳥",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/a2935587b7c61e6e6da88da3578d700c133246e5.png",
+    "bytes": 78730
   },
   {
     "id": 18,
@@ -70,6 +118,24 @@
     "name": "拉達",
     "source": "https://tw.portal-pokemon.com/images/pokedex/e97c62e4e4b46017be60806d00f4d389d003f115.png",
     "bytes": 86224
+  },
+  {
+    "id": 21,
+    "name": "烈雀",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/e815cb4b8ba9c2d0841dfa364c87164880944e3a.png",
+    "bytes": 71115
+  },
+  {
+    "id": 22,
+    "name": "大嘴雀",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/8b326a6f77b73b3c250ba95f3a97fc21b28c8f4b.png",
+    "bytes": 79808
+  },
+  {
+    "id": 23,
+    "name": "阿柏蛇",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/ad90ec632849d032615d707ebe8ad741651eee06.png",
+    "bytes": 84228
   },
   {
     "id": 24,
@@ -96,10 +162,46 @@
     "bytes": 81894
   },
   {
+    "id": 28,
+    "name": "穿山王",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/d00d72f082b7dae546fa8bd5cf09fcfe53ffcae8.png",
+    "bytes": 79115
+  },
+  {
+    "id": 29,
+    "name": "尼多蘭",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/14179c8ab9c2003fc5b27a29e91e4cd195283d52.png",
+    "bytes": 83462
+  },
+  {
+    "id": 30,
+    "name": "尼多娜",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/fed980fd2341745923812e9dcd88a039aaaf36ea.png",
+    "bytes": 79130
+  },
+  {
     "id": 31,
     "name": "尼多后",
     "source": "https://tw.portal-pokemon.com/images/pokedex/5174a41a9db00baf5dd664c92a12254b0baa5fde.png",
     "bytes": 80454
+  },
+  {
+    "id": 32,
+    "name": "尼多朗",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/237579eaf2141edad61d647c62f074d53653337b.png",
+    "bytes": 87358
+  },
+  {
+    "id": 33,
+    "name": "尼多力諾",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/f3d8e45646fb05516dff845922c3d62d9aa33cbe.png",
+    "bytes": 90369
+  },
+  {
+    "id": 34,
+    "name": "尼多王",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/ce24d9eb27f4e554ea5bd29840a35957f7bd9d30.png",
+    "bytes": 87203
   },
   {
     "id": 35,
@@ -150,10 +252,46 @@
     "bytes": 67924
   },
   {
+    "id": 43,
+    "name": "走路草",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/6bad448cb0997a928b94e72b67eacb861271f796.png",
+    "bytes": 71395
+  },
+  {
+    "id": 44,
+    "name": "臭臭花",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/62973d0fc5f9bd5d8c819b8c885bd1f216983ff1.png",
+    "bytes": 74073
+  },
+  {
+    "id": 45,
+    "name": "霸王花",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/a95af5f577260373074117cb756e5ea38cd674ef.png",
+    "bytes": 81132
+  },
+  {
     "id": 46,
     "name": "派拉斯",
     "source": "https://tw.portal-pokemon.com/images/pokedex/837bcac8efc9329d9e3b9e46e95670a5d493b60a.png",
     "bytes": 70102
+  },
+  {
+    "id": 47,
+    "name": "派拉斯特",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/e5838e76eb33d88601ba9d6e045e1bdf7e20f46a.png",
+    "bytes": 63413
+  },
+  {
+    "id": 48,
+    "name": "毛球",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/8b550ab54d22a87dc784ee1af6cff4ad33aa10a2.png",
+    "bytes": 67332
+  },
+  {
+    "id": 49,
+    "name": "摩魯蛾",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/c57d464a64424f031a9872f2ec3f7c0b8052d3c1.png",
+    "bytes": 79311
   },
   {
     "id": 50,
@@ -174,6 +312,12 @@
     "bytes": 80729
   },
   {
+    "id": 53,
+    "name": "貓老大",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/8da0bb6b5587f2150f41b08e0d61a80827d7229f.png",
+    "bytes": 78726
+  },
+  {
     "id": 54,
     "name": "可達鴨",
     "source": "https://tw.portal-pokemon.com/images/pokedex/0783062d0d860b8ae7d8e859241a700359c4d981.png",
@@ -184,6 +328,18 @@
     "name": "哥達鴨",
     "source": "https://tw.portal-pokemon.com/images/pokedex/0dd5b6e921f55c5d49978b84ee66e458336518ae.png",
     "bytes": 81629
+  },
+  {
+    "id": 56,
+    "name": "猴怪",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/00fb5703d7c2b7a89933bbed89f4c84e48c59ea2.png",
+    "bytes": 74562
+  },
+  {
+    "id": 57,
+    "name": "火爆猴",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/37a3edfcf9c5cbdb68bcf8945ff89fe2999e5a30.png",
+    "bytes": 93560
   },
   {
     "id": 58,
@@ -198,10 +354,22 @@
     "bytes": 93394
   },
   {
-    "id": 61,
+    "id": 60,
     "name": "蚊香蝌蚪",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/8e8d47c5af6084904793496ddddb3e5f516e79f7.png",
+    "bytes": 59438
+  },
+  {
+    "id": 61,
+    "name": "蚊香君",
     "source": "https://tw.portal-pokemon.com/images/pokedex/7e16ace7443d45cc1def215c8cf82beefc69041c.png",
     "bytes": 77707
+  },
+  {
+    "id": 62,
+    "name": "蚊香泳士",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/da2fce266d1c13743742451617b2976d6bfd483d.png",
+    "bytes": 75520
   },
   {
     "id": 63,
@@ -210,10 +378,28 @@
     "bytes": 70749
   },
   {
+    "id": 64,
+    "name": "勇基拉",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/96613b8fe63edfdf800cde823078fadc6ea9aae9.png",
+    "bytes": 90551
+  },
+  {
     "id": 65,
     "name": "胡地",
     "source": "https://tw.portal-pokemon.com/images/pokedex/265d42cf68deea0a54dacf3a4f1953198f55ad53.png",
     "bytes": 83637
+  },
+  {
+    "id": 66,
+    "name": "腕力",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/0074c7d90ce7d2a6926d28fe777d2bcb0b4ccb0b.png",
+    "bytes": 78842
+  },
+  {
+    "id": 67,
+    "name": "豪力",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/634e1c205ab72071fe941043f816a9e2f31db3ae.png",
+    "bytes": 90965
   },
   {
     "id": 68,
@@ -222,10 +408,34 @@
     "bytes": 87587
   },
   {
+    "id": 69,
+    "name": "喇叭芽",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/47ae88a63c66e32e957da303ad50b72268e097e4.png",
+    "bytes": 63842
+  },
+  {
+    "id": 70,
+    "name": "口呆花",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/b19541cee78bc2a00eb3f59f7a2fcca67469eb78.png",
+    "bytes": 53216
+  },
+  {
     "id": 71,
     "name": "大食花",
     "source": "https://tw.portal-pokemon.com/images/pokedex/f010b09344a212ecb98c6f209233c0661db0e7a8.png",
     "bytes": 68410
+  },
+  {
+    "id": 72,
+    "name": "瑪瑙水母",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/3da5f9c26f39884f5f44a861e6965fdc1722241b.png",
+    "bytes": 55112
+  },
+  {
+    "id": 73,
+    "name": "毒刺水母",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/e8720bf3fe40182141dc5f442f5fb83eff544a6e.png",
+    "bytes": 85139
   },
   {
     "id": 74,
@@ -234,10 +444,22 @@
     "bytes": 63817
   },
   {
+    "id": 75,
+    "name": "隆隆石",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/f3ae64c5acf41a159e07b63da847cccc773bb184.png",
+    "bytes": 75669
+  },
+  {
     "id": 76,
     "name": "隆隆岩",
     "source": "https://tw.portal-pokemon.com/images/pokedex/02fb8976b07089e975a9911ae2ff1327b5e3340d.png",
     "bytes": 87052
+  },
+  {
+    "id": 77,
+    "name": "小火馬",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/dacab2be1777c14ed7da12824dd85c2cdbd2ebf9.png",
+    "bytes": 76249
   },
   {
     "id": 78,
@@ -258,6 +480,18 @@
     "bytes": 81259
   },
   {
+    "id": 81,
+    "name": "小磁怪",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/8dfff91e7e39b06d0a9fcfb414565b25de55bdf1.png",
+    "bytes": 52225
+  },
+  {
+    "id": 82,
+    "name": "三合一磁怪",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/5f8732c548e90780b660f65926e5567755aa2a6c.png",
+    "bytes": 86924
+  },
+  {
     "id": 83,
     "name": "大蔥鴨",
     "source": "https://tw.portal-pokemon.com/images/pokedex/810c4dc60ff4f315216717a2ecaa3c7dfe3fcf09.png",
@@ -270,16 +504,52 @@
     "bytes": 58759
   },
   {
+    "id": 85,
+    "name": "嘟嘟利",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/de41d6a29c38d65f1f39bc5ecb3afe30c5e057eb.png",
+    "bytes": 76466
+  },
+  {
     "id": 86,
     "name": "小海獅",
     "source": "https://tw.portal-pokemon.com/images/pokedex/fc1342f9b5bc761333a44d74dc47ba0ff30ad6c8.png",
     "bytes": 71929
   },
   {
+    "id": 87,
+    "name": "白海獅",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/2a2e293a8524ac94136bada7346ddfe57e12e47e.png",
+    "bytes": 98261
+  },
+  {
+    "id": 88,
+    "name": "臭泥",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/57f22ceb2f8765f927ff3fd1f4b4bf52a7033097.png",
+    "bytes": 82505
+  },
+  {
+    "id": 90,
+    "name": "大舌貝",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/36918010e6d91103c9017f4ce4d1764c9f145db8.png",
+    "bytes": 77092
+  },
+  {
+    "id": 91,
+    "name": "刺甲貝",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/d5ebac9e1afe16f2a1d16a7593e022fc576aed9e.png",
+    "bytes": 80720
+  },
+  {
     "id": 92,
     "name": "鬼斯",
     "source": "https://tw.portal-pokemon.com/images/pokedex/5c619391fb78cbe0d3646a9b76da07372a18580e.png",
     "bytes": 82999
+  },
+  {
+    "id": 93,
+    "name": "鬼斯通",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/b8bcfb490b9a54a7cfc607ac82f413f4e582cb56.png",
+    "bytes": 80868
   },
   {
     "id": 94,
@@ -294,6 +564,30 @@
     "bytes": 82160
   },
   {
+    "id": 96,
+    "name": "催眠貘",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/1d82671099cdd52c4a0b84724d72033d305538bd.png",
+    "bytes": 72377
+  },
+  {
+    "id": 98,
+    "name": "大鉗蟹",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/15ec38c5c458545368bf8e85da77d49f4b09104d.png",
+    "bytes": 68941
+  },
+  {
+    "id": 100,
+    "name": "霹靂電球",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/cfa3cfb38563c9afdb4d6fac40607fa78db97721.png",
+    "bytes": 76352
+  },
+  {
+    "id": 102,
+    "name": "蛋蛋",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/2b23bf26e6063e8fe37a5122a112abb1a475b052.png",
+    "bytes": 90494
+  },
+  {
     "id": 103,
     "name": "椰蛋樹",
     "source": "https://tw.portal-pokemon.com/images/pokedex/a17a1d3fbeeba958495697c23b287b1966fd11dc.png",
@@ -304,6 +598,18 @@
     "name": "可拉可拉",
     "source": "https://tw.portal-pokemon.com/images/pokedex/6c44a0ccb922bbb4345214f3fa0b9436a03c11f2.png",
     "bytes": 71632
+  },
+  {
+    "id": 105,
+    "name": "嘎啦嘎啦",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/1a2a79bce9b5c63de4d6db9b895a34ce6bf6733d.png",
+    "bytes": 68378
+  },
+  {
+    "id": 108,
+    "name": "大舌頭",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/fe41bccc4b1fd3c2ab748d09a157e3c0c28c7700.png",
+    "bytes": 85857
   },
   {
     "id": 113,
@@ -336,10 +642,34 @@
     "bytes": 68923
   },
   {
+    "id": 132,
+    "name": "百變怪",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/5f27124544444c7565d9dc54c3227f3970aa7454.png",
+    "bytes": 90879
+  },
+  {
     "id": 133,
     "name": "伊布",
     "source": "https://tw.portal-pokemon.com/images/pokedex/1fab9d9b86c9071e3f10c14b7869e3ec338f1429.png",
     "bytes": 76477
+  },
+  {
+    "id": 134,
+    "name": "水伊布",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/6a744cd8a7461d218c7dab0ff084cad30c4c6872.png",
+    "bytes": 72696
+  },
+  {
+    "id": 135,
+    "name": "雷伊布",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/117467cd6471aded1857f44f639965cc3305c4af.png",
+    "bytes": 80311
+  },
+  {
+    "id": 136,
+    "name": "火伊布",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/c837f7f95ed1870458db055583e78c33152c556e.png",
+    "bytes": 70305
   },
   {
     "id": 143,
@@ -348,15 +678,45 @@
     "bytes": 79936
   },
   {
+    "id": 144,
+    "name": "急凍鳥",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/a1b9576b6cf4bde4abeb391af3b55c5370205557.png",
+    "bytes": 83970
+  },
+  {
+    "id": 145,
+    "name": "閃電鳥",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/427bb0b94b44ff442449cfba55dc6829df76891c.png",
+    "bytes": 66137
+  },
+  {
+    "id": 146,
+    "name": "火焰鳥",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/9d83c451429ae1858ff1588ba5724ffbad4b55c1.png",
+    "bytes": 56679
+  },
+  {
     "id": 147,
     "name": "迷你龍",
     "source": "https://tw.portal-pokemon.com/images/pokedex/27a6cc8fdc7abc93def1b061b582dac7a93430c1.png",
     "bytes": 51604
   },
   {
+    "id": 149,
+    "name": "快龍",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/ecdc5527d67488c92c242e34458844fe2afac525.png",
+    "bytes": 77766
+  },
+  {
     "id": 150,
     "name": "超夢",
     "source": "https://tw.portal-pokemon.com/images/pokedex/ad7ffb53f984a6623c53f01cfbc06fc8565ecbd4.png",
     "bytes": 88424
+  },
+  {
+    "id": 151,
+    "name": "夢幻",
+    "source": "https://tw.portal-pokemon.com/images/pokedex/3373da1ae6e9a429e7fc8dbad72bf5f4726eb13b.png",
+    "bytes": 69552
   }
 ]
