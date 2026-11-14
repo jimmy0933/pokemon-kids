@@ -1,17 +1,18 @@
 package com.jimmy0933.pokemonkids
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PokemonDataTest {
 
     @Test
-    fun threeHundredPokemonWithUniqueIdsAndNames() {
-        assertEquals(300, ALL_POKEMON.size)
-        assertEquals(300, ALL_POKEMON.map { it.id }.toSet().size)
-        assertEquals(300, ALL_POKEMON.map { it.name }.toSet().size)
-        assertEquals((1..300).toSet(), ALL_POKEMON.map { it.id }.toSet())
+    fun fourHundredPokemonWithUniqueIdsAndNames() {
+        assertEquals(400, ALL_POKEMON.size)
+        assertEquals(400, ALL_POKEMON.map { it.id }.toSet().size)
+        assertEquals(400, ALL_POKEMON.map { it.name }.toSet().size)
+        assertEquals((1..400).toSet(), ALL_POKEMON.map { it.id }.toSet())
         assertTrue(ALL_POKEMON.all { it.name.isNotBlank() && it.type.isNotBlank() })
     }
 
@@ -21,21 +22,21 @@ class PokemonDataTest {
         assertEquals(TOTAL_ROUNDS, rs.size)
         assertEquals(50, TOTAL_ROUNDS)
         assertTrue(rs.all { it.size == ROUND_SIZE })
-        assertEquals(300, rs.flatten().map { it.id }.toSet().size)
-        // Rounds 1-20 are unchanged from v1.3.
-        assertEquals(listOf(1, 4, 7, 25, 133, 143), rounds()[0].map { it.id })
-        assertEquals(listOf(96, 98, 100, 102, 105, 108), rounds()[19].map { it.id })
-        // Rounds 21-50 hold the new Pokemon in Dex order.
-        assertEquals(listOf(89, 97, 99, 101, 106, 107), rounds()[20].map { it.id })
-        assertEquals(listOf(295, 296, 297, 298, 299, 300), rounds()[49].map { it.id })
+        assertEquals(400, rs.flatten().map { it.id }.toSet().size)
+        // Rounds are strictly Dex-ordered: round 1 = 1-8 ... round 50 = 393-400.
+        assertEquals((1..400).toList(), rs.flatten().map { it.id })
+        assertEquals(listOf(1, 2, 3, 4, 5, 6, 7, 8), rounds()[0].map { it.id })
+        assertEquals(listOf(9, 10, 11, 12, 13, 14, 15, 16), rounds()[1].map { it.id })
+        assertEquals(listOf(145, 146, 147, 148, 149, 150, 151, 152), rounds()[18].map { it.id })
+        assertEquals(listOf(393, 394, 395, 396, 397, 398, 399, 400), rounds()[49].map { it.id })
     }
 
     @Test
     fun roundSizeMatchesRoundIndex() {
-        assertEquals(6, roundSize(0))
-        assertEquals(6, roundSize(19))
-        assertEquals(6, roundSize(20))
-        assertEquals(6, roundSize(49))
+        assertEquals(8, roundSize(0))
+        assertEquals(8, roundSize(19))
+        assertEquals(8, roundSize(20))
+        assertEquals(8, roundSize(49))
     }
 
     @Test
@@ -53,22 +54,30 @@ class PokemonDataTest {
     fun roundCompleteOnlyWhenAllMatched() {
         val round = rounds()[0]
         assertTrue(isRoundComplete(round.map { it.id }.toSet(), 0))
-        assertTrue(!isRoundComplete(round.take(5).map { it.id }.toSet(), 0))
+        assertTrue(!isRoundComplete(round.take(7).map { it.id }.toSet(), 0))
         assertTrue(!isRoundComplete(emptySet(), 0))
         val lateRound = rounds()[49]
         assertTrue(isRoundComplete(lateRound.map { it.id }.toSet(), 49))
-        assertTrue(!isRoundComplete(lateRound.take(5).map { it.id }.toSet(), 49))
+        assertTrue(!isRoundComplete(lateRound.take(7).map { it.id }.toSet(), 49))
     }
 
     @Test
-    fun famousPokemonAreInRoundOne() {
+    fun roundOneIsDexOneToEight() {
+        // v2.1 dropped the famous-first ordering: rounds are plain Dex order,
+        // so round 1 is Dex 1-8 (the three starters are in it).
         val firstRoundIds = rounds()[0].map { it.id }.toSet()
-        assertTrue(firstRoundIds.containsAll(listOf(1, 4, 7, 25, 133, 143)))
+        assertEquals(setOf(1, 2, 3, 4, 5, 6, 7, 8), firstRoundIds)
+        assertTrue(firstRoundIds.containsAll(listOf(1, 4, 7)))
+        // Famous Pokemon that used to be in round 1 now sit in their Dex rounds:
+        // Pikachu (25) is in round 4, Eevee (133) in round 17, Snorlax (143) in round 18.
+        assertTrue(25 in rounds()[3].map { it.id }.toSet())
+        assertTrue(133 in rounds()[16].map { it.id }.toSet())
+        assertTrue(143 in rounds()[17].map { it.id }.toSet())
     }
 
     @Test
     fun everyPokemonHasDrawableResource() {
-        // Drawable resources are bundled as pkm_001.png ... pkm_300.png; the name
+        // Drawable resources are bundled as pkm_001.png ... pkm_400.png; the name
         // must match the id so the UI can resolve it with resources.getIdentifier.
         ALL_POKEMON.forEach { pokemon ->
             assertEquals(
@@ -138,12 +147,15 @@ class PokemonDataTest {
         // Pikachu's family: Pichu -> Pikachu -> Raichu.
         val pikachu = ALL_POKEMON.first { it.id == 25 }
         assertEquals(listOf(25, 26, 172), pikachu.evolutionFamily().map { it.id })
-        // Eevee's branched family: Eevee + 5 evolutions within Dex 1-300.
+        // Eevee's branched family: Eevee + 5 evolutions within Dex 1-400.
         val eevee = ALL_POKEMON.first { it.id == 133 }
         assertEquals(
             listOf(133, 134, 135, 136, 196, 197),
             eevee.evolutionFamily().map { it.id },
         )
+        // A Gen 3 starter family: Treecko -> Grovyle -> Sceptile.
+        val treecko = ALL_POKEMON.first { it.id == 252 }
+        assertEquals(listOf(252, 253, 254), treecko.evolutionFamily().map { it.id })
         // A Pokemon with no evolutions is a family of one.
         val mew = ALL_POKEMON.first { it.id == 151 }
         assertEquals(listOf(151), mew.evolutionFamily().map { it.id })
@@ -159,14 +171,17 @@ class PokemonDataTest {
     fun regionsCoverAllPokemon() {
         assertEquals(151, regionPokemon(Region.KANTO).size)
         assertEquals(100, regionPokemon(Region.JOHTO).size)
-        assertEquals(49, regionPokemon(Region.HOENN).size)
+        assertEquals(135, regionPokemon(Region.HOENN).size)
+        assertEquals(14, regionPokemon(Region.SINNOH).size)
         assertEquals(Region.KANTO, regionOf(ALL_POKEMON.first { it.id == 1 }))
         assertEquals(Region.KANTO, regionOf(ALL_POKEMON.first { it.id == 151 }))
         assertEquals(Region.JOHTO, regionOf(ALL_POKEMON.first { it.id == 152 }))
         assertEquals(Region.JOHTO, regionOf(ALL_POKEMON.first { it.id == 251 }))
         assertEquals(Region.HOENN, regionOf(ALL_POKEMON.first { it.id == 252 }))
-        assertEquals(Region.HOENN, regionOf(ALL_POKEMON.first { it.id == 300 }))
-        assertEquals(300, Region.entries.sumOf { regionPokemon(it).size })
+        assertEquals(Region.HOENN, regionOf(ALL_POKEMON.first { it.id == 386 }))
+        assertEquals(Region.SINNOH, regionOf(ALL_POKEMON.first { it.id == 387 }))
+        assertEquals(Region.SINNOH, regionOf(ALL_POKEMON.first { it.id == 400 }))
+        assertEquals(400, Region.entries.sumOf { regionPokemon(it).size })
     }
 
     @Test
@@ -193,5 +208,41 @@ class PokemonDataTest {
         // With everything collected, it still produces questions.
         val allCollected = makeQuizQuestions(ALL_POKEMON, ALL_POKEMON.map { it.id }.toSet(), 10, 4, seed = 10L)
         assertEquals(10, allCollected.size)
+    }
+
+    @Test
+    fun colorOfReturnsColourForEveryMappedId() {
+        // Every id in the curated map resolves to exactly its listed colour.
+        COLOR_SORT_MAP.forEach { (id, category) ->
+            assertEquals("colorOf($id) must be $category", category, colorOf(id))
+        }
+        // Every mapped id is a Pokemon in the game.
+        val gameIds = ALL_POKEMON.map { it.id }.toSet()
+        assertTrue(COLOR_SORT_MAP.keys.all { it in gameIds })
+        // Pokemon left out of the curated map (ambiguous colours) return null.
+        assertNull(colorOf(1)) // 妙蛙種子：綠＋藍雙色
+        assertNull(colorOf(4)) // 小火龍：橘色
+        assertNull(colorOf(39)) // 胖丁：粉紅色
+        assertNull(colorOf(94)) // 耿鬼：紫色
+        assertNull(colorOf(150)) // 超夢：白色
+        assertNull(colorOf(0))
+        assertNull(colorOf(401))
+    }
+
+    @Test
+    fun colorSortPoolHasFortyPlusEntriesAcrossFourColours() {
+        val pool = colorSortPool()
+        assertTrue("pool must have 40+ entries", pool.size >= 40)
+        assertEquals(72, pool.size)
+        assertEquals(72, pool.map { it.id }.toSet().size)
+        // 18 per colour, all four colours represented.
+        val byColour = pool.groupBy { colorOf(it.id) }
+        assertEquals(4, byColour.size)
+        ColorCategory.entries.forEach { category ->
+            assertEquals(18, byColour[category]?.size)
+        }
+        // Every pooled Pokemon has a colour, and the pool matches the map exactly.
+        assertTrue(pool.all { colorOf(it.id) != null })
+        assertEquals(COLOR_SORT_MAP.keys, pool.map { it.id }.toSet())
     }
 }
