@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -53,7 +54,7 @@ fun CollectionScreen(
     var region by remember { mutableStateOf(Region.KANTO) }
     val regionList = regionPokemon(region)
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().navigationBarsPadding().padding(16.dp)) {
         Text(
             text = "我的圖鑑",
             fontSize = 32.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
