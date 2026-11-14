@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -48,6 +50,8 @@ fun CollectionScreen(
 ) {
     val context = LocalContext.current
     var selected by remember { mutableStateOf<Pokemon?>(null) }
+    var region by remember { mutableStateOf(Region.KANTO) }
+    val regionList = regionPokemon(region)
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -64,6 +68,31 @@ fun CollectionScreen(
             progress = { collectedIds.size.toFloat() / ALL_POKEMON.size },
             modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
         )
+        // Region tabs: each with its own progress, and a star when complete.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+        ) {
+            Region.entries.forEach { entry ->
+                val list = regionPokemon(entry)
+                val done = list.count { it.id in collectedIds }
+                val complete = done == list.size
+                Button(
+                    onClick = { region = entry },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (region == entry) Color(0xFF1976D2) else Color(0xFFE3F2FD),
+                        contentColor = if (region == entry) Color.White else Color.Black,
+                    ),
+                ) {
+                    Text(
+                        "${entry.label}${if (complete) " ⭐" else ""}\n$done / ${list.size}",
+                        fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center, maxLines = 2,
+                    )
+                }
+            }
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             contentPadding = PaddingValues(4.dp),
@@ -71,7 +100,7 @@ fun CollectionScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.weight(1f),
         ) {
-            items(ALL_POKEMON) { pokemon ->
+            items(regionList) { pokemon ->
                 val collected = pokemon.id in collectedIds
                 Card(
                     modifier = Modifier.aspectRatio(1f).clickable(enabled = collected) {
@@ -135,6 +164,47 @@ fun CollectionScreen(
                         textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     )
+                    // Evolution chain: the whole family, current one highlighted.
+                    // Uncollected family members show as a silhouette + "?".
+                    val family = pokemon.evolutionFamily()
+                    if (family.size > 1) {
+                        Text(
+                            "進化", fontSize = 22.sp, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        ) {
+                            family.forEachIndexed { familyIndex, member ->
+                                val memberCollected = member.id in collectedIds
+                                val isCurrent = member.id == pokemon.id
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.weight(1f),
+                                ) {
+                                    Image(
+                                        painter = painterResource(drawableId(context, member.drawable)),
+                                        contentDescription = if (memberCollected) member.name else "還沒收集到",
+                                        contentScale = ContentScale.Fit,
+                                        colorFilter = if (memberCollected) null else ColorFilter.tint(Color.Black),
+                                        modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                                    )
+                                    Text(
+                                        if (memberCollected) member.name else "?",
+                                        fontSize = 16.sp,
+                                        fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isCurrent) Color(0xFF1976D2) else Color.Black,
+                                        maxLines = 1,
+                                    )
+                                }
+                                if (familyIndex < family.size - 1) {
+                                    Text("➜", fontSize = 20.sp)
+                                }
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
