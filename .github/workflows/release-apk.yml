@@ -1,0 +1,62 @@
+name: Android release APK
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pokemon-kids-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Test and build signed release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      # GitHub's Ubuntu Android SDK is preinstalled. Avoid setup-android@v3,
+      # which currently requests a removed legacy SDK package ("tools").
+      - name: Install Android SDK 36
+        run: |
+          SDK_MANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -x "$SDK_MANAGER"
+          "$SDK_MANAGER" --install "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Run unit tests
+        run: gradle --no-daemon --stacktrace :app:testDebugUnitTest
+      - name: Decode signing keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
+      - name: Build unsigned release APK
+        run: gradle --no-daemon --stacktrace :app:assembleRelease
+      - name: Sign release APK with the repo keystore
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          APKSIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          "$APKSIGNER" sign \
+            --ks app/keystore.jks \
+            --ks-pass "env:KEYSTORE_PASSWORD" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --key-pass "env:KEY_PASSWORD" \
+            --out app/build/outputs/apk/release/app-release-signed.apk \
+            app/build/outputs/apk/release/app-release-unsigned.apk
+          "$APKSIGNER" verify --verbose app/build/outputs/apk/release/app-release-signed.apk
+      - name: Upload signed release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-kids-release-apk
+          path: app/build/outputs/apk/release/app-release-signed.apk
