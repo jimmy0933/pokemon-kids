@@ -12,3 +12,6 @@ app/build
 app/release
 *.keystore
 *.jks
+
+# built APKs (deliverables, not source)
+*.apk
