@@ -22,10 +22,10 @@ fun formatMeasure(value: Double): String =
 fun Pokemon.speakText(): String =
     "${name}，${type}屬性，身高 ${formatMeasure(heightM)} 公尺，體重 ${formatMeasure(weightKg)} 公斤。${intro}"
 
-/** The 30 Pokemon in v1, in play order. Names, numbers, heights, weights and the
- * ideas behind the intros are from the Taiwan official Pokedex
- * (https://tw.portal-pokemon.com/play/pokedex/), cross-checked against PokeAPI.
- * Intros are rewritten in friendly words for a 4-year-old. */
+/** The 60 Pokemon in v1.2 (30 in v1, +30 in v1.2), in play order. Names, numbers,
+ * heights, weights and the ideas behind the intros are from the Taiwan official
+ * Pokedex (https://tw.portal-pokemon.com/play/pokedex/), cross-checked against
+ * PokeAPI. Intros are rewritten in friendly words for a 4-year-old. */
 val ALL_POKEMON: List<Pokemon> = listOf(
     // Round 1 — the most famous starters
     Pokemon(1, "妙蛙種子", "草", "pkm_001", 0.7, 6.9,
@@ -92,12 +92,80 @@ val ALL_POKEMON: List<Pokemon> = listOf(
         "手臂像兩把鋒利的鐮刀，割開草叢前進。動作快到眼睛都快看不清楚！"),
     Pokemon(150, "超夢", "超能力", "pkm_150", 2.0, 122.0,
         "是科學家用基因做出來的寶可夢，擁有非常強大的超能力。牠一直在尋找，自己到底是誰。"),
+    // Round 6
+    Pokemon(2, "妙蛙草", "草", "pkm_002", 1.0, 13.0,
+        "沐浴在陽光下越久，背上的花苞就會長得越大。牠最喜歡曬太陽了！"),
+    Pokemon(5, "火恐龍", "火", "pkm_005", 1.1, 19.0,
+        "揮動燃燒的尾巴時，周圍會變得暖呼呼的。牠是一隻很熱情的寶可夢！"),
+    Pokemon(8, "卡咪龜", "水", "pkm_008", 1.0, 22.5,
+        "蓬蓬鬆鬆的長尾巴是長壽的象徵，特別受到爺爺奶奶的喜愛。牠游起泳來又快又穩！"),
+    Pokemon(12, "巴大蝶", "蟲", "pkm_012", 1.1, 32.0,
+        "翅膀上有漂亮的花紋，飛起來的時候，閃亮亮的鱗粉會像小星星一樣飄下來。"),
+    Pokemon(18, "大比鳥", "一般", "pkm_018", 1.5, 39.5,
+        "有著亮麗的羽毛，很多訓練家都被牠頭上美麗的羽毛吸引。牠飛得又高又快！"),
+    Pokemon(20, "拉達", "一般", "pkm_020", 0.7, 18.5,
+        "遇到危險的時候，牠會用後腳的小蹼游過大海，逃到別的島嶼去。牠可是游泳小高手！"),
+    // Round 7
+    Pokemon(24, "阿柏怪", "毒", "pkm_024", 3.5, 65.0,
+        "肚子上有像臉一樣有趣的花紋。牠把身體捲起來，就像一條長長的繩子。"),
+    Pokemon(26, "雷丘", "電", "pkm_026", 0.8, 30.0,
+        "尾巴像接地線一樣把電導入地面，所以自己不會被電到。牠的臉頰也能發出啪滋啪滋的電光！"),
+    Pokemon(27, "穿山鼠", "地面", "pkm_027", 0.6, 12.0,
+        "喜歡挖很深的洞住在裡面。遇到危險時，牠會把身體捲成一團，靜靜地等危險過去。"),
+    Pokemon(31, "尼多后", "毒", "pkm_031", 1.3, 60.0,
+        "身上長滿堅硬的鱗片，會用身體把對手撞開。保護孩子的時候，牠會變得最勇敢！"),
+    Pokemon(36, "皮可西", "妖精", "pkm_036", 1.3, 40.0,
+        "是住在安靜深山裡的小妖精，害羞不喜歡被看見。滿月的夜晚，牠會和朋友們一起跳舞。"),
+    Pokemon(38, "九尾", "火", "pkm_038", 1.1, 19.9,
+        "有九根漂亮的尾巴，傳說每一根尾巴都藏著不同的神奇力量。牠活了很久很久，是個聰明又優雅的寶可夢。"),
+    // Round 8
+    Pokemon(40, "胖可丁", "一般", "pkm_040", 1.0, 12.0,
+        "毛皮摸起來細細滑滑的。別惹牠生氣喔，生氣的時候牠會一直膨脹起來！"),
+    Pokemon(42, "大嘴蝠", "毒", "pkm_042", 1.6, 55.0,
+        "肚子餓的時候，牠會張開大大的嘴巴。牠沒有眼睛，靠耳朵聽聲音來找路。"),
+    Pokemon(46, "派拉斯", "蟲", "pkm_046", 0.3, 5.4,
+        "背上長著兩朵小蘑菇，喜歡潮濕的地方。牠會把蘑菇的孢子灑在樹根上，和大樹做朋友。"),
+    Pokemon(51, "三地鼠", "地面", "pkm_051", 0.7, 33.3,
+        "有三顆頭，會輪流工作，把周圍的泥土挖得鬆鬆軟軟的。牠們挖洞挖得好快！"),
+    Pokemon(55, "哥達鴨", "水", "pkm_055", 1.7, 76.6,
+        "游泳的時候手腳划得好快，額頭還會閃閃發光。牠是游泳健將！"),
+    Pokemon(59, "風速狗", "火", "pkm_059", 1.9, 155.0,
+        "在草原上奔跑的樣子非常帥氣，連畫裡的人都被牠迷住了。牠跑起來像風一樣快！"),
+    // Round 9
+    Pokemon(61, "蚊香蝌蚪", "水", "pkm_061", 1.0, 20.0,
+        "兩條腿很有力氣，雖然能在陸地上生活，但牠更喜歡待在水裡游泳。肚子上的花紋像蚊香一樣捲捲的。"),
+    Pokemon(65, "胡地", "超能力", "pkm_065", 1.5, 48.0,
+        "手裡拿著一根湯匙，那是牠用超能力變出來的，全世界只有一根！牠的頭腦超級聰明。"),
+    Pokemon(68, "怪力", "格鬥", "pkm_068", 1.6, 130.0,
+        "有四隻強壯的手臂，可以從各個方向快速出拳。牠力氣超大，可以一次搬走好多東西！"),
+    Pokemon(71, "大食花", "草", "pkm_071", 1.7, 15.5,
+        "頭上開著一朵大大的花，會散發甜甜的香味。牠搖晃花朵的時候，就像在跳舞一樣。"),
+    Pokemon(76, "隆隆岩", "岩石", "pkm_076", 1.4, 300.0,
+        "身上穿著像岩石一樣堅硬的殼，每年脫一次皮，身體就變得更大。牠滾起來的時候像一顆大石球！"),
+    Pokemon(78, "烈焰馬", "火", "pkm_078", 1.7, 95.0,
+        "燃燒的鬃毛隨風飄揚，可以用每小時兩百四十公里的速度在大草原上奔跑。牠跑起來的時候就像一道火光！"),
+    // Round 10
+    Pokemon(80, "呆殼獸", "水", "pkm_080", 1.6, 78.5,
+        "去海裡捕食的時候，大舌貝咬住了牠的尾巴，於是牠們就變成好朋友，一起生活了。牠還是慢吞吞、很悠哉的樣子。"),
+    Pokemon(83, "大蔥鴨", "一般", "pkm_083", 0.8, 15.0,
+        "把翅膀拿的蔥當成劍一樣揮舞，是一隻很會用劍的寶可夢。牠最寶貝那根蔥了，走到哪都帶著。"),
+    Pokemon(84, "嘟嘟", "一般", "pkm_084", 1.4, 39.2,
+        "有兩顆長得一模一樣的頭，牠們配合得天衣無縫。跑步的時候，兩顆頭會一起看著前方。"),
+    Pokemon(86, "小海獅", "水", "pkm_086", 1.1, 90.0,
+        "頭上有很堅硬的角，可以用頭撞破冰山來開路。牠喜歡在冰冷的海水裡游泳。"),
+    Pokemon(113, "吉利蛋", "一般", "pkm_113", 1.1, 34.6,
+        "心地非常善良，會生出營養滿分的蛋，分給受傷的寶可夢和人類吃。大家都好喜歡牠！"),
+    Pokemon(130, "暴鯉龍", "水", "pkm_130", 6.5, 235.0,
+        "雖然看起來很兇，其實牠以前是小小的鯉魚王，努力長大才變成這麼厲害的寶可夢！牠在水裡游得非常快。"),
 )
 
 const val ROUND_SIZE = 6
-const val TOTAL_ROUNDS = 5
 
-/** The 5 rounds, each a different set of 6 Pokemon. */
+/** Derived from the list size, so adding Pokemon grows the game automatically:
+ * 30 Pokemon -> 5 rounds, 60 Pokemon -> 10 rounds. */
+val TOTAL_ROUNDS = ALL_POKEMON.size / ROUND_SIZE
+
+/** The rounds, each a different set of 6 Pokemon. */
 fun rounds(): List<List<Pokemon>> = ALL_POKEMON.chunked(ROUND_SIZE)
 
 /** The 12 cards for a round: each Pokemon twice, shuffled. Pure function, unit-tested. */

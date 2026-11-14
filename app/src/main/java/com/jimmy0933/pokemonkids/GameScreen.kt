@@ -122,14 +122,21 @@ fun GameScreen(
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         if (isFlipped) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillMaxSize().padding(8.dp),
+                            ) {
                                 Image(
                                     painter = painterResource(drawableId(context, pokemon.drawable)),
                                     contentDescription = pokemon.name,
                                     contentScale = ContentScale.Fit,
-                                    modifier = Modifier.fillMaxSize(0.78f),
+                                    modifier = Modifier.weight(1f).fillMaxWidth(),
                                 )
-                                Text(pokemon.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    pokemon.name,
+                                    fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                )
                             }
                         } else {
                             Text("?", fontSize = 56.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEE3E36))

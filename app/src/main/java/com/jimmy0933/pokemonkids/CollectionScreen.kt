@@ -84,17 +84,21 @@ fun CollectionScreen(
                     ),
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxSize().padding(8.dp),
+                        ) {
                             Image(
                                 painter = painterResource(drawableId(context, pokemon.drawable)),
                                 contentDescription = if (collected) pokemon.name else "還沒收集到",
                                 contentScale = ContentScale.Fit,
                                 colorFilter = if (collected) null else ColorFilter.tint(Color.Black),
-                                modifier = Modifier.fillMaxSize(0.68f),
+                                modifier = Modifier.weight(1f).fillMaxWidth(),
                             )
                             Text(
                                 if (collected) pokemon.name else "?",
-                                fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                                maxLines = 1,
                             )
                         }
                     }
