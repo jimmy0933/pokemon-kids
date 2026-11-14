@@ -7,19 +7,20 @@ import org.junit.Test
 class PokemonDataTest {
 
     @Test
-    fun thirtyPokemonWithUniqueIdsAndNames() {
-        assertEquals(30, ALL_POKEMON.size)
-        assertEquals(30, ALL_POKEMON.map { it.id }.toSet().size)
-        assertEquals(30, ALL_POKEMON.map { it.name }.toSet().size)
+    fun sixtyPokemonWithUniqueIdsAndNames() {
+        assertEquals(60, ALL_POKEMON.size)
+        assertEquals(60, ALL_POKEMON.map { it.id }.toSet().size)
+        assertEquals(60, ALL_POKEMON.map { it.name }.toSet().size)
         assertTrue(ALL_POKEMON.all { it.name.isNotBlank() && it.type.isNotBlank() })
     }
 
     @Test
-    fun fiveRoundsOfSixDifferentPokemon() {
+    fun tenRoundsOfSixDifferentPokemon() {
         val rs = rounds()
         assertEquals(TOTAL_ROUNDS, rs.size)
+        assertEquals(10, TOTAL_ROUNDS)
         assertTrue(rs.all { it.size == ROUND_SIZE })
-        assertEquals(30, rs.flatten().map { it.id }.toSet().size)
+        assertEquals(60, rs.flatten().map { it.id }.toSet().size)
     }
 
     @Test
