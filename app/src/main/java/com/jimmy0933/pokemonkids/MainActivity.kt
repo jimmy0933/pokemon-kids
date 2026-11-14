@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,6 +56,11 @@ sealed interface Screen {
     data object ListenQuiz : Screen
     data object Silhouette : Screen
     data object Collection : Screen
+    data object FindIt : Screen
+    data object Puzzle : Screen
+    data object Count : Screen
+    data object Care : Screen
+    data object ColorSort : Screen
 }
 
 class MainActivity : ComponentActivity() {
@@ -102,6 +109,11 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onListenQuiz = { screen = Screen.ListenQuiz },
             onSilhouette = { screen = Screen.Silhouette },
             onCollection = { screen = Screen.Collection },
+            onFindIt = { screen = Screen.FindIt },
+            onPuzzle = { screen = Screen.Puzzle },
+            onCount = { screen = Screen.Count },
+            onCare = { screen = Screen.Care },
+            onColorSort = { screen = Screen.ColorSort },
         )
         Screen.Rounds -> RoundSelectScreen(
             collectedIds = collected,
@@ -140,6 +152,44 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onSpeak = onSpeak,
             onBack = { screen = Screen.Home },
         )
+        Screen.FindIt -> FindItScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
+        Screen.Puzzle -> PuzzleScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
+        Screen.Count -> CountScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
+        Screen.Care -> CareScreen(
+            collectedIds = collected,
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+        )
+        Screen.ColorSort -> ColorSortScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
     }
 }
 
@@ -150,10 +200,15 @@ fun HomeScreen(
     onListenQuiz: () -> Unit,
     onSilhouette: () -> Unit,
     onCollection: () -> Unit,
+    onFindIt: () -> Unit,
+    onPuzzle: () -> Unit,
+    onCount: () -> Unit,
+    onCare: () -> Unit,
+    onColorSort: () -> Unit,
 ) {
     val context = LocalContext.current
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -189,6 +244,36 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth().height(88.dp),
             shape = RoundedCornerShape(24.dp),
         ) { Text("📖 我的圖鑑", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onFindIt,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🔍 找一找", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onPuzzle,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🧩 拼圖", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onCount,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🔢 數一數", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onCare,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("💗 照顧寶可夢", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onColorSort,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🎨 顏色分類", fontSize = 32.sp) }
         Spacer(modifier = Modifier.height(24.dp))
         Text("給 4 歲小朋友玩：看圖配對，收集寶可夢", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
     }
