@@ -54,6 +54,7 @@ fun GameScreen(
 ) {
     val context = LocalContext.current
     val round = rounds()[roundIndex]
+    val roundSize = roundSize(roundIndex)
     val cards = remember(roundIndex) { roundCards(roundIndex) }
     var flipped by remember(roundIndex) { mutableStateOf(setOf<Int>()) }
     var matched by remember(roundIndex) { mutableStateOf(setOf<Int>()) }
@@ -70,9 +71,6 @@ fun GameScreen(
                 matched = matched + pokemon.id
                 onCollect(pokemon.id)
                 flipped = emptySet()
-                if (matched.size + 1 == ROUND_SIZE) {
-                    // matched was just updated above in the same frame; re-check below.
-                }
             } else {
                 locked = true
                 delay(900)
@@ -82,7 +80,7 @@ fun GameScreen(
         }
     }
     LaunchedEffect(matched) {
-        if (matched.size == ROUND_SIZE && matched.isNotEmpty()) {
+        if (matched.size == roundSize && matched.isNotEmpty()) {
             delay(400)
             sounds.celebrate()
             showComplete = true
@@ -96,12 +94,12 @@ fun GameScreen(
             modifier = Modifier.fillMaxWidth(),
         )
         Text(
-            text = "⭐ ${matched.size} / $ROUND_SIZE",
+            text = "⭐ ${matched.size} / $roundSize",
             fontSize = 24.sp, textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
         )
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
+            columns = GridCells.Fixed(if (roundSize == 8) 4 else 3),
             contentPadding = PaddingValues(4.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -154,7 +152,7 @@ fun GameScreen(
     if (showComplete) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("🎉 收集到 6 隻新朋友！", fontSize = 26.sp) },
+            title = { Text("🎉 收集到 $roundSize 隻新朋友！", fontSize = 26.sp) },
             text = { Text("這一關的寶可夢都進圖鑑了，好棒！", fontSize = 20.sp) },
             confirmButton = {
                 if (onNextRound != null) {
