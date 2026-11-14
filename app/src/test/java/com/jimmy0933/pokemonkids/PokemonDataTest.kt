@@ -45,4 +45,35 @@ class PokemonDataTest {
         val firstRoundIds = rounds()[0].map { it.id }.toSet()
         assertTrue(firstRoundIds.containsAll(listOf(1, 4, 7, 25, 133, 143)))
     }
+
+    @Test
+    fun everyPokemonHasHeightWeightAndIntro() {
+        ALL_POKEMON.forEach { pokemon ->
+            assertTrue("${pokemon.name} must have a positive height", pokemon.heightM > 0)
+            assertTrue("${pokemon.name} must have a positive weight", pokemon.weightKg > 0)
+            assertTrue(
+                "${pokemon.name} intro must be at least 10 characters",
+                pokemon.intro.length >= 10,
+            )
+        }
+    }
+
+    @Test
+    fun speakTextContainsNameTypeHeightAndWeight() {
+        ALL_POKEMON.forEach { pokemon ->
+            val text = pokemon.speakText()
+            assertTrue(text.contains(pokemon.name))
+            assertTrue(text.contains(pokemon.type))
+            assertTrue(text.contains(formatMeasure(pokemon.heightM)))
+            assertTrue(text.contains(formatMeasure(pokemon.weightKg)))
+            assertTrue(text.contains("公尺"))
+            assertTrue(text.contains("公斤"))
+            assertTrue(text.contains(pokemon.intro))
+        }
+        // Spot check: Pikachu reads naturally, whole numbers have no ".0".
+        assertEquals(
+            "皮卡丘，電屬性，身高 0.4 公尺，體重 6 公斤。臉頰兩邊有儲存電力的小囊袋。開心的時候，臉頰還會發出啪滋啪滋的電光！",
+            ALL_POKEMON.first { it.id == 25 }.speakText(),
+        )
+    }
 }
