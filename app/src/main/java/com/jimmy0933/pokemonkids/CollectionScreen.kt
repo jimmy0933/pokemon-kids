@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -74,7 +76,7 @@ fun CollectionScreen(
                 Card(
                     modifier = Modifier.aspectRatio(1f).clickable(enabled = collected) {
                         selected = pokemon
-                        onSpeak(pokemon.name)
+                        onSpeak(pokemon.speakText())
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(
@@ -110,18 +112,29 @@ fun CollectionScreen(
             onDismissRequest = { selected = null },
             title = { Text("${pokemon.name}  No.${pokemon.id}", fontSize = 26.sp) },
             text = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                ) {
                     Image(
                         painter = painterResource(drawableId(context, pokemon.drawable)),
                         contentDescription = pokemon.name,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxWidth().aspectRatio(1f),
                     )
-                    Text("屬性：${pokemon.type}", fontSize = 22.sp)
+                    Text("屬性：${pokemon.type}", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    Text("身高：${formatMeasure(pokemon.heightM)} 公尺", fontSize = 22.sp)
+                    Text("體重：${formatMeasure(pokemon.weightKg)} 公斤", fontSize = 22.sp)
+                    Text(
+                        pokemon.intro,
+                        fontSize = 22.sp,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
                 }
             },
             confirmButton = {
-                TextButton(onClick = { onSpeak(pokemon.name) }) { Text("🔊 再唸一次", fontSize = 22.sp) }
+                TextButton(onClick = { onSpeak(pokemon.speakText()) }) { Text("🔊 再唸一次", fontSize = 22.sp) }
             },
             dismissButton = {
                 TextButton(onClick = { selected = null }) { Text("關閉", fontSize = 22.sp) }
