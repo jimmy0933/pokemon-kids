@@ -50,6 +50,8 @@ sealed interface Screen {
     data object Home : Screen
     data object Rounds : Screen
     data class Game(val roundIndex: Int) : Screen
+    data object ListenQuiz : Screen
+    data object Silhouette : Screen
     data object Collection : Screen
 }
 
@@ -96,6 +98,8 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         Screen.Home -> HomeScreen(
             collectedCount = collected.size,
             onPlay = { screen = Screen.Rounds },
+            onListenQuiz = { screen = Screen.ListenQuiz },
+            onSilhouette = { screen = Screen.Silhouette },
             onCollection = { screen = Screen.Collection },
         )
         Screen.Rounds -> RoundSelectScreen(
@@ -114,6 +118,22 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             } else null,
             onOpenCollection = { screen = Screen.Collection },
         )
+        Screen.ListenQuiz -> ListenQuizScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
+        Screen.Silhouette -> SilhouetteScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
         Screen.Collection -> CollectionScreen(
             collectedIds = collected,
             onSpeak = onSpeak,
@@ -123,7 +143,13 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
 }
 
 @Composable
-fun HomeScreen(collectedCount: Int, onPlay: () -> Unit, onCollection: () -> Unit) {
+fun HomeScreen(
+    collectedCount: Int,
+    onPlay: () -> Unit,
+    onListenQuiz: () -> Unit,
+    onSilhouette: () -> Unit,
+    onCollection: () -> Unit,
+) {
     val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -143,7 +169,19 @@ fun HomeScreen(collectedCount: Int, onPlay: () -> Unit, onCollection: () -> Unit
             onClick = onPlay,
             modifier = Modifier.fillMaxWidth().height(88.dp),
             shape = RoundedCornerShape(24.dp),
-        ) { Text("▶ 玩遊戲", fontSize = 32.sp) }
+        ) { Text("▶ 翻牌配對", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onListenQuiz,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🔊 聽音猜", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onSilhouette,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("👤 影子猜", fontSize = 32.sp) }
         Spacer(modifier = Modifier.height(20.dp))
         Button(
             onClick = onCollection,
