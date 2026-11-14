@@ -7,20 +7,20 @@ import org.junit.Test
 class PokemonDataTest {
 
     @Test
-    fun sixtyPokemonWithUniqueIdsAndNames() {
-        assertEquals(60, ALL_POKEMON.size)
-        assertEquals(60, ALL_POKEMON.map { it.id }.toSet().size)
-        assertEquals(60, ALL_POKEMON.map { it.name }.toSet().size)
+    fun oneHundredTwentyPokemonWithUniqueIdsAndNames() {
+        assertEquals(120, ALL_POKEMON.size)
+        assertEquals(120, ALL_POKEMON.map { it.id }.toSet().size)
+        assertEquals(120, ALL_POKEMON.map { it.name }.toSet().size)
         assertTrue(ALL_POKEMON.all { it.name.isNotBlank() && it.type.isNotBlank() })
     }
 
     @Test
-    fun tenRoundsOfSixDifferentPokemon() {
+    fun twentyRoundsOfSixDifferentPokemon() {
         val rs = rounds()
         assertEquals(TOTAL_ROUNDS, rs.size)
-        assertEquals(10, TOTAL_ROUNDS)
+        assertEquals(20, TOTAL_ROUNDS)
         assertTrue(rs.all { it.size == ROUND_SIZE })
-        assertEquals(60, rs.flatten().map { it.id }.toSet().size)
+        assertEquals(120, rs.flatten().map { it.id }.toSet().size)
     }
 
     @Test
@@ -45,6 +45,18 @@ class PokemonDataTest {
     fun famousPokemonAreInRoundOne() {
         val firstRoundIds = rounds()[0].map { it.id }.toSet()
         assertTrue(firstRoundIds.containsAll(listOf(1, 4, 7, 25, 133, 143)))
+    }
+
+    @Test
+    fun everyPokemonHasDrawableResource() {
+        // Drawable resources are bundled as pkm_001.png ... pkm_151.png; the name
+        // must match the id so the UI can resolve it with resources.getIdentifier.
+        ALL_POKEMON.forEach { pokemon ->
+            assertEquals(
+                "pkm_%03d".format(pokemon.id),
+                pokemon.drawable,
+            )
+        }
     }
 
     @Test
