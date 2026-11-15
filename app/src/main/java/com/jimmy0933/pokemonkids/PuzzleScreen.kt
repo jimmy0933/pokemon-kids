@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-const val PUZZLE_COUNT = 5
+const val PUZZLE_COUNT = 10
 
 /** Shuffle the 4 pieces (0..3) so the picture never starts out solved. */
 private fun shuffledPieceOrder(seed: Long): List<Int> {
@@ -54,7 +54,7 @@ private fun shuffledPieceOrder(seed: Long): List<Int> {
 
 /** Picture puzzle: one Pokemon picture is split into 4 pieces (2x2) and
  * shuffled. The kid taps two pieces to swap them; when the picture is whole
- * again, the Pokemon is collected. One puzzle at a time, 5 puzzles per
+ * again, the Pokemon is collected. One puzzle at a time, 10 puzzles per
  * session, no timer, no penalty. */
 @Composable
 fun PuzzleScreen(

@@ -38,11 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val FIND_IT_QUESTION_COUNT = 10
+const val FIND_IT_QUESTION_COUNT = 20
 const val FIND_IT_OPTION_COUNT = 12
 
 /** Find-it: the target Pokemon is shown big at the top, and the kid taps the
- * matching picture out of 12 below. 10 questions per session, no timer, no
+ * matching picture out of 12 below. 20 questions per session, no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
  * correct tap collects the Pokemon into the same Pokedex as matching. */
 @Composable

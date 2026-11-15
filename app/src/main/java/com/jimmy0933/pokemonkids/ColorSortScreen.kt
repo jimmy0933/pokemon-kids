@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val COLOR_SORT_QUESTION_COUNT = 10
+const val COLOR_SORT_QUESTION_COUNT = 20
 
 /** The four colour boxes the kid sorts Pokemon into. */
 enum class ColorCategory(val label: String, val color: Color, val textColor: Color = Color.White) {
@@ -140,7 +140,7 @@ fun colorOf(id: Int): ColorCategory? = COLOR_SORT_MAP[id]
 fun colorSortPool(): List<Pokemon> = ALL_POKEMON.filter { it.id in COLOR_SORT_MAP }
 
 /** Colour sorting: a Pokemon is shown and the kid taps which colour box it
- * belongs to (紅 / 藍 / 黃 / 綠). 10 questions per session, no timer, no
+ * belongs to (紅 / 藍 / 黃 / 綠). 20 questions per session, no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
  * correct tap collects the Pokemon into the same Pokedex as matching. */
 @Composable
