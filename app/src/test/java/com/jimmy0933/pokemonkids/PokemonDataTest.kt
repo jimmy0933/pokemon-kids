@@ -1,6 +1,7 @@
 package com.jimmy0933.pokemonkids
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -8,27 +9,28 @@ import org.junit.Test
 class PokemonDataTest {
 
     @Test
-    fun fourHundredPokemonWithUniqueIdsAndNames() {
-        assertEquals(400, ALL_POKEMON.size)
-        assertEquals(400, ALL_POKEMON.map { it.id }.toSet().size)
-        assertEquals(400, ALL_POKEMON.map { it.name }.toSet().size)
-        assertEquals((1..400).toSet(), ALL_POKEMON.map { it.id }.toSet())
+    fun eightHundredPokemonWithUniqueIdsAndNames() {
+        assertEquals(800, ALL_POKEMON.size)
+        assertEquals(800, ALL_POKEMON.map { it.id }.toSet().size)
+        assertEquals(800, ALL_POKEMON.map { it.name }.toSet().size)
+        assertEquals((1..800).toSet(), ALL_POKEMON.map { it.id }.toSet())
         assertTrue(ALL_POKEMON.all { it.name.isNotBlank() && it.type.isNotBlank() })
     }
 
     @Test
-    fun fiftyRoundsWithCorrectSizes() {
+    fun hundredRoundsWithCorrectSizes() {
         val rs = rounds()
         assertEquals(TOTAL_ROUNDS, rs.size)
-        assertEquals(50, TOTAL_ROUNDS)
+        assertEquals(100, TOTAL_ROUNDS)
         assertTrue(rs.all { it.size == ROUND_SIZE })
-        assertEquals(400, rs.flatten().map { it.id }.toSet().size)
-        // Rounds are strictly Dex-ordered: round 1 = 1-8 ... round 50 = 393-400.
-        assertEquals((1..400).toList(), rs.flatten().map { it.id })
+        assertEquals(800, rs.flatten().map { it.id }.toSet().size)
+        // Rounds are strictly Dex-ordered: round 1 = 1-8 ... round 100 = 793-800.
+        assertEquals((1..800).toList(), rs.flatten().map { it.id })
         assertEquals(listOf(1, 2, 3, 4, 5, 6, 7, 8), rounds()[0].map { it.id })
         assertEquals(listOf(9, 10, 11, 12, 13, 14, 15, 16), rounds()[1].map { it.id })
         assertEquals(listOf(145, 146, 147, 148, 149, 150, 151, 152), rounds()[18].map { it.id })
         assertEquals(listOf(393, 394, 395, 396, 397, 398, 399, 400), rounds()[49].map { it.id })
+        assertEquals(listOf(793, 794, 795, 796, 797, 798, 799, 800), rounds()[99].map { it.id })
     }
 
     @Test
@@ -37,6 +39,7 @@ class PokemonDataTest {
         assertEquals(8, roundSize(19))
         assertEquals(8, roundSize(20))
         assertEquals(8, roundSize(49))
+        assertEquals(8, roundSize(99))
     }
 
     @Test
@@ -56,9 +59,9 @@ class PokemonDataTest {
         assertTrue(isRoundComplete(round.map { it.id }.toSet(), 0))
         assertTrue(!isRoundComplete(round.take(7).map { it.id }.toSet(), 0))
         assertTrue(!isRoundComplete(emptySet(), 0))
-        val lateRound = rounds()[49]
-        assertTrue(isRoundComplete(lateRound.map { it.id }.toSet(), 49))
-        assertTrue(!isRoundComplete(lateRound.take(7).map { it.id }.toSet(), 49))
+        val lateRound = rounds()[99]
+        assertTrue(isRoundComplete(lateRound.map { it.id }.toSet(), 99))
+        assertTrue(!isRoundComplete(lateRound.take(7).map { it.id }.toSet(), 99))
     }
 
     @Test
@@ -77,7 +80,7 @@ class PokemonDataTest {
 
     @Test
     fun everyPokemonHasDrawableResource() {
-        // Drawable resources are bundled as pkm_001.png ... pkm_400.png; the name
+        // Drawable resources are bundled as pkm_001.png ... pkm_800.png; the name
         // must match the id so the UI can resolve it with resources.getIdentifier.
         ALL_POKEMON.forEach { pokemon ->
             assertEquals(
@@ -147,10 +150,11 @@ class PokemonDataTest {
         // Pikachu's family: Pichu -> Pikachu -> Raichu.
         val pikachu = ALL_POKEMON.first { it.id == 25 }
         assertEquals(listOf(25, 26, 172), pikachu.evolutionFamily().map { it.id })
-        // Eevee's branched family: Eevee + 5 evolutions within Dex 1-400.
+        // Eevee's branched family: Eevee + 8 evolutions within Dex 1-800
+        // (Gen 4 adds Leafeon 470 and Glaceon 471, Gen 6 adds Sylveon 700).
         val eevee = ALL_POKEMON.first { it.id == 133 }
         assertEquals(
-            listOf(133, 134, 135, 136, 196, 197),
+            listOf(133, 134, 135, 136, 196, 197, 470, 471, 700),
             eevee.evolutionFamily().map { it.id },
         )
         // A Gen 3 starter family: Treecko -> Grovyle -> Sceptile.
@@ -172,7 +176,10 @@ class PokemonDataTest {
         assertEquals(151, regionPokemon(Region.KANTO).size)
         assertEquals(100, regionPokemon(Region.JOHTO).size)
         assertEquals(135, regionPokemon(Region.HOENN).size)
-        assertEquals(14, regionPokemon(Region.SINNOH).size)
+        assertEquals(107, regionPokemon(Region.SINNOH).size)
+        assertEquals(156, regionPokemon(Region.UNOVA).size)
+        assertEquals(72, regionPokemon(Region.KALOS).size)
+        assertEquals(79, regionPokemon(Region.ALOLA).size)
         assertEquals(Region.KANTO, regionOf(ALL_POKEMON.first { it.id == 1 }))
         assertEquals(Region.KANTO, regionOf(ALL_POKEMON.first { it.id == 151 }))
         assertEquals(Region.JOHTO, regionOf(ALL_POKEMON.first { it.id == 152 }))
@@ -180,22 +187,28 @@ class PokemonDataTest {
         assertEquals(Region.HOENN, regionOf(ALL_POKEMON.first { it.id == 252 }))
         assertEquals(Region.HOENN, regionOf(ALL_POKEMON.first { it.id == 386 }))
         assertEquals(Region.SINNOH, regionOf(ALL_POKEMON.first { it.id == 387 }))
-        assertEquals(Region.SINNOH, regionOf(ALL_POKEMON.first { it.id == 400 }))
-        assertEquals(400, Region.entries.sumOf { regionPokemon(it).size })
+        assertEquals(Region.SINNOH, regionOf(ALL_POKEMON.first { it.id == 493 }))
+        assertEquals(Region.UNOVA, regionOf(ALL_POKEMON.first { it.id == 494 }))
+        assertEquals(Region.UNOVA, regionOf(ALL_POKEMON.first { it.id == 649 }))
+        assertEquals(Region.KALOS, regionOf(ALL_POKEMON.first { it.id == 650 }))
+        assertEquals(Region.KALOS, regionOf(ALL_POKEMON.first { it.id == 721 }))
+        assertEquals(Region.ALOLA, regionOf(ALL_POKEMON.first { it.id == 722 }))
+        assertEquals(Region.ALOLA, regionOf(ALL_POKEMON.first { it.id == 800 }))
+        assertEquals(800, Region.entries.sumOf { regionPokemon(it).size })
     }
 
     @Test
     fun quizQuestionsIncludeAnswerAndUniqueOptions() {
-        val questions = makeQuizQuestions(ALL_POKEMON, emptySet(), 10, 4, seed = 7L)
-        assertEquals(10, questions.size)
-        assertEquals(10, questions.map { it.answer.id }.toSet().size)
+        val questions = makeQuizQuestions(ALL_POKEMON, emptySet(), 20, 4, seed = 7L)
+        assertEquals(20, questions.size)
+        assertEquals(20, questions.map { it.answer.id }.toSet().size)
         questions.forEach { q ->
             assertEquals(4, q.options.size)
             assertTrue(q.options.contains(q.answer))
             assertEquals(4, q.options.map { it.id }.toSet().size)
         }
         // Silhouette mode uses 3 options.
-        val silhouette = makeQuizQuestions(ALL_POKEMON, emptySet(), 10, 3, seed = 8L)
+        val silhouette = makeQuizQuestions(ALL_POKEMON, emptySet(), 20, 3, seed = 8L)
         assertTrue(silhouette.all { it.options.size == 3 && it.options.contains(it.answer) })
     }
 
@@ -203,11 +216,98 @@ class PokemonDataTest {
     fun quizQuestionsPreferUncollectedPokemon() {
         // With only 5 uncollected, the first 5 answers must be exactly those 5.
         val collected = (ALL_POKEMON.map { it.id } - setOf(1, 4, 7, 25, 133)).toSet()
-        val questions = makeQuizQuestions(ALL_POKEMON, collected, 10, 4, seed = 9L)
+        val questions = makeQuizQuestions(ALL_POKEMON, collected, 20, 4, seed = 9L)
         assertEquals(setOf(1, 4, 7, 25, 133), questions.take(5).map { it.answer.id }.toSet())
         // With everything collected, it still produces questions.
-        val allCollected = makeQuizQuestions(ALL_POKEMON, ALL_POKEMON.map { it.id }.toSet(), 10, 4, seed = 10L)
-        assertEquals(10, allCollected.size)
+        val allCollected = makeQuizQuestions(ALL_POKEMON, ALL_POKEMON.map { it.id }.toSet(), 20, 4, seed = 10L)
+        assertEquals(20, allCollected.size)
+    }
+
+    @Test
+    fun sessionCountsAreDoubledForV22() {
+        // v2.2 doubles the per-session counts: quiz 10 -> 20, puzzle 5 -> 10.
+        assertEquals(20, QUIZ_QUESTION_COUNT)
+        assertEquals(10, PUZZLE_COUNT)
+        assertEquals(20, FIND_IT_QUESTION_COUNT)
+        assertEquals(20, COUNT_QUESTION_COUNT)
+        assertEquals(20, COLOR_SORT_QUESTION_COUNT)
+        // New modes: 5 mazes, 10 catches, 10 size questions per session.
+        assertEquals(5, MAZE_COUNT)
+        assertEquals(10, CATCH_COUNT)
+        assertEquals(10, SIZE_QUESTION_COUNT)
+    }
+
+    @Test
+    fun mazesAreAlwaysSolvable() {
+        for (seed in 0L until 50L) {
+            val maze = makeMaze(seed)
+            assertEquals(MAZE_SIZE, maze.size)
+            assertTrue("maze $seed: start must not be a wall", maze.start !in maze.walls)
+            assertTrue("maze $seed: goal must not be a wall", maze.goal !in maze.walls)
+            assertEquals("maze $seed: start must be the top-left corner", 0 to 0, maze.start)
+            assertEquals(
+                "maze $seed: goal must be the bottom-right corner",
+                (MAZE_SIZE - 1) to (MAZE_SIZE - 1), maze.goal,
+            )
+            assertTrue("maze $seed must be solvable", isMazeSolvable(maze))
+            val path = findMazePath(maze)
+            assertNotNull("maze $seed must have a path", path)
+            val found = path!!
+            assertEquals(maze.start, found.first())
+            assertEquals(maze.goal, found.last())
+            // Every step moves one cell, and no step goes through a wall.
+            found.zipWithNext().forEach { (a, b) ->
+                val distance = kotlin.math.abs(a.first - b.first) + kotlin.math.abs(a.second - b.second)
+                assertEquals("maze $seed: steps must be adjacent", 1, distance)
+            }
+            assertTrue(found.all { it !in maze.walls })
+        }
+    }
+
+    @Test
+    fun catchHoleNeverRepeatsTwiceInARow() {
+        var previous: Int? = null
+        val random = kotlin.random.Random(42L)
+        repeat(200) {
+            val hole = nextCatchHole(CATCH_HOLE_COUNT, previous, random)
+            assertTrue("hole $hole must be in range", hole in 0 until CATCH_HOLE_COUNT)
+            assertTrue("hole must not repeat twice in a row", hole != previous)
+            previous = hole
+        }
+        // A single hole has nowhere else to go.
+        assertEquals(0, nextCatchHole(1, 0, kotlin.random.Random(1L)))
+    }
+
+    @Test
+    fun nextCatchPokemonPrefersUncollectedAndAvoidsCaught() {
+        val random = kotlin.random.Random(3L)
+        // Nothing caught yet: any Pokemon may come up.
+        val first = nextCatchPokemon(ALL_POKEMON, emptySet(), emptySet(), random)
+        assertNotNull(first)
+        // With only one Pokemon left uncaught, it must be that one.
+        val almostAllCaught = (ALL_POKEMON.map { it.id } - 25).toSet()
+        val last = nextCatchPokemon(ALL_POKEMON, emptySet(), almostAllCaught, random)
+        assertEquals(25, last?.id)
+        // With everything caught, there is nothing left to pop up.
+        assertNull(nextCatchPokemon(ALL_POKEMON, emptySet(), ALL_POKEMON.map { it.id }.toSet(), random))
+    }
+
+    @Test
+    fun sizeQuestionsAreThreeDistinctPokemonSortedTallestFirst() {
+        val questions = makeSizeQuestions(ALL_POKEMON, 10, seed = 42L)
+        assertEquals(10, questions.size)
+        questions.forEach { question ->
+            assertEquals(3, question.options.size)
+            assertEquals(3, question.options.map { it.id }.toSet().size)
+            val heights = question.options.map { it.heightM }
+            assertEquals(3, heights.toSet().size)
+            assertTrue("heights must be tallest first: $heights", heights == heights.sortedDescending())
+        }
+        // Same seed, same questions.
+        assertEquals(
+            questions.map { it.options.map { pokemon -> pokemon.id } },
+            makeSizeQuestions(ALL_POKEMON, 10, seed = 42L).map { it.options.map { pokemon -> pokemon.id } },
+        )
     }
 
     @Test
