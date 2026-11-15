@@ -64,6 +64,10 @@ sealed interface Screen {
     data object Maze : Screen
     data object Catch : Screen
     data object Size : Screen
+    data object FindMatch : Screen
+    data object DexOrder : Screen
+    data object Weight : Screen
+    data object ShadowMatch : Screen
 }
 
 class MainActivity : ComponentActivity() {
@@ -120,6 +124,10 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onMaze = { screen = Screen.Maze },
             onCatch = { screen = Screen.Catch },
             onSize = { screen = Screen.Size },
+            onFindMatch = { screen = Screen.FindMatch },
+            onDexOrder = { screen = Screen.DexOrder },
+            onWeight = { screen = Screen.Weight },
+            onShadowMatch = { screen = Screen.ShadowMatch },
         )
         Screen.Rounds -> RoundSelectScreen(
             collectedIds = collected,
@@ -220,6 +228,38 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
+        Screen.FindMatch -> FindMatchScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
+        Screen.DexOrder -> DexOrderScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
+        Screen.Weight -> WeightScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
+        Screen.ShadowMatch -> ShadowMatchScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
     }
 }
 
@@ -238,6 +278,10 @@ fun HomeScreen(
     onMaze: () -> Unit,
     onCatch: () -> Unit,
     onSize: () -> Unit,
+    onFindMatch: () -> Unit,
+    onDexOrder: () -> Unit,
+    onWeight: () -> Unit,
+    onShadowMatch: () -> Unit,
 ) {
     val context = LocalContext.current
     Column(
@@ -325,6 +369,30 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth().height(88.dp),
             shape = RoundedCornerShape(24.dp),
         ) { Text("📏 比大小", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onFindMatch,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🔎 找相同", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onDexOrder,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🔢 排順序", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onWeight,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("⚖️ 比重量", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onShadowMatch,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🎭 影子配對", fontSize = 32.sp) }
         Spacer(modifier = Modifier.height(24.dp))
         Text("給 4 歲小朋友玩：看圖配對，收集寶可夢", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
     }
