@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 const val MAZE_COUNT = 25
-const val MAZE_SIZE = 5
+const val MAZE_SIZE = 7
 
 /** One cell of the maze grid: (row, column), both 0-based. */
 typealias MazeCell = Pair<Int, Int>
@@ -77,7 +77,8 @@ fun makeMaze(seed: Long, size: Int = MAZE_SIZE): Maze {
     val pathSet = path.toSet()
     val allCells = (0 until size).flatMap { r -> (0 until size).map { c -> r to c } }
     // Open a few extra cells off the carved path so there is room to wander.
-    val extras = (allCells - pathSet).shuffled(random).take(4)
+    // The count scales with the grid so bigger mazes keep a similar feel.
+    val extras = (allCells - pathSet).shuffled(random).take(size)
     val open = pathSet + extras
     return Maze(
         size = size,
@@ -171,12 +172,14 @@ fun isMazePathComplete(maze: Maze, path: List<MazeCell>): Boolean =
     path.lastOrNull() == maze.goal
 
 /** Walk the maze: a Pokemon starts at one corner and the kid draws a path
- * with their finger across the 5x5 grid to the apple at the opposite
+ * with their finger across the 7x7 grid to the apple at the opposite
  * corner. The path grows cell by cell through adjacent, non-wall cells;
  * lifting the finger keeps the drawn path, and the big 「重畫」 button
  * starts the maze over. Dragging into a wall is simply ignored, with no
- * penalty. 25 mazes per session, no timer; finishing a maze collects the
- * Pokemon shown. */
+ * penalty. The walked path is not highlighted: path cells look the same as
+ * unvisited cells, and the Pokemon sitting at the path's end shows how far
+ * the kid has got. 25 mazes per session, no timer; finishing a maze
+ * collects the Pokemon shown. */
 @Composable
 fun MazeScreen(
     collectedIds: Set<Int>,
@@ -276,12 +279,12 @@ fun MazeScreen(
                     },
             ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     for (row in 0 until maze.size) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier.fillMaxWidth().weight(1f),
                         ) {
                             for (column in 0 until maze.size) {
@@ -289,7 +292,6 @@ fun MazeScreen(
                                 val isPlayer = cell == path.lastOrNull()
                                 val isGoal = cell == maze.goal
                                 val isWall = cell in maze.walls
-                                val inPath = cell in path
                                 Box(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier
@@ -300,10 +302,13 @@ fun MazeScreen(
                                                 isWall -> Color(0xFF78909C)
                                                 isGoal -> Color(0xFFFFCCBC)
                                                 isPlayer -> Color(0xFFC8E6C9)
-                                                inPath -> Color(0xFFBBDEFB)
+                                                // Walked path cells look the same as
+                                                // unvisited cells on purpose: the
+                                                // Pokemon at the path's end shows
+                                                // the progress.
                                                 else -> Color(0xFFFFF59D)
                                             },
-                                            RoundedCornerShape(12.dp),
+                                            RoundedCornerShape(8.dp),
                                         ),
                                 ) {
                                     when {
@@ -313,7 +318,7 @@ fun MazeScreen(
                                             contentScale = ContentScale.Fit,
                                             modifier = Modifier.fillMaxSize().padding(4.dp),
                                         )
-                                        isGoal -> Text("🍎", fontSize = 40.sp)
+                                        isGoal -> Text("🍎", fontSize = 28.sp)
                                     }
                                 }
                             }
