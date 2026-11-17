@@ -18,19 +18,22 @@ class PokemonDataTest {
     }
 
     @Test
-    fun hundredRoundsWithCorrectSizes() {
+    fun hundredTwentyRoundsWithReviewRounds() {
         val rs = rounds()
         assertEquals(TOTAL_ROUNDS, rs.size)
-        assertEquals(100, TOTAL_ROUNDS)
+        assertEquals(120, TOTAL_ROUNDS)
         assertTrue(rs.all { it.size == ROUND_SIZE })
-        assertEquals(800, rs.flatten().map { it.id }.toSet().size)
-        // Rounds are strictly Dex-ordered: round 1 = 1-8 ... round 100 = 793-800.
-        assertEquals((1..800).toList(), rs.flatten().map { it.id })
+        // Rounds 1-100 are strictly Dex-ordered: round 1 = 1-8 ... round 100 = 793-800.
+        assertEquals((1..800).toList(), rs.take(100).flatten().map { it.id })
         assertEquals(listOf(1, 2, 3, 4, 5, 6, 7, 8), rounds()[0].map { it.id })
         assertEquals(listOf(9, 10, 11, 12, 13, 14, 15, 16), rounds()[1].map { it.id })
         assertEquals(listOf(145, 146, 147, 148, 149, 150, 151, 152), rounds()[18].map { it.id })
         assertEquals(listOf(393, 394, 395, 396, 397, 398, 399, 400), rounds()[49].map { it.id })
         assertEquals(listOf(793, 794, 795, 796, 797, 798, 799, 800), rounds()[99].map { it.id })
+        // Rounds 101-120 are review rounds replaying Dex 1-160 in order.
+        assertEquals((1..160).toList(), rs.drop(100).flatten().map { it.id })
+        assertEquals(listOf(1, 2, 3, 4, 5, 6, 7, 8), rounds()[100].map { it.id })
+        assertEquals(listOf(153, 154, 155, 156, 157, 158, 159, 160), rounds()[119].map { it.id })
     }
 
     @Test
@@ -40,6 +43,8 @@ class PokemonDataTest {
         assertEquals(8, roundSize(20))
         assertEquals(8, roundSize(49))
         assertEquals(8, roundSize(99))
+        assertEquals(8, roundSize(100))
+        assertEquals(8, roundSize(119))
     }
 
     @Test
@@ -62,6 +67,11 @@ class PokemonDataTest {
         val lateRound = rounds()[99]
         assertTrue(isRoundComplete(lateRound.map { it.id }.toSet(), 99))
         assertTrue(!isRoundComplete(lateRound.take(7).map { it.id }.toSet(), 99))
+        // A review round (101st) completes the same way, with Dex 1-8 again.
+        val reviewRound = rounds()[100]
+        assertEquals(listOf(1, 2, 3, 4, 5, 6, 7, 8), reviewRound.map { it.id })
+        assertTrue(isRoundComplete(reviewRound.map { it.id }.toSet(), 100))
+        assertTrue(!isRoundComplete(reviewRound.take(7).map { it.id }.toSet(), 100))
     }
 
     @Test
@@ -224,17 +234,22 @@ class PokemonDataTest {
     }
 
     @Test
-    fun sessionCountsAreDoubledForV22() {
-        // v2.2 doubles the per-session counts: quiz 10 -> 20, puzzle 5 -> 10.
-        assertEquals(20, QUIZ_QUESTION_COUNT)
-        assertEquals(10, PUZZLE_COUNT)
-        assertEquals(20, FIND_IT_QUESTION_COUNT)
-        assertEquals(20, COUNT_QUESTION_COUNT)
-        assertEquals(20, COLOR_SORT_QUESTION_COUNT)
-        // New modes: 5 mazes, 10 catches, 10 size questions per session.
-        assertEquals(5, MAZE_COUNT)
-        assertEquals(10, CATCH_COUNT)
-        assertEquals(10, SIZE_QUESTION_COUNT)
+    fun sessionCountsArePlusTwentyForV24() {
+        // v2.4 adds 20 to every per-session count: quiz 20 -> 40, puzzle 10 -> 30.
+        assertEquals(40, QUIZ_QUESTION_COUNT)
+        assertEquals(30, PUZZLE_COUNT)
+        assertEquals(40, FIND_IT_QUESTION_COUNT)
+        assertEquals(40, COUNT_QUESTION_COUNT)
+        assertEquals(40, COLOR_SORT_QUESTION_COUNT)
+        // Maze 5 -> 25, catches 10 -> 30, size questions 10 -> 30 per session.
+        assertEquals(25, MAZE_COUNT)
+        assertEquals(30, CATCH_COUNT)
+        assertEquals(30, SIZE_QUESTION_COUNT)
+        // v2.3 games: 10 -> 30 questions per session.
+        assertEquals(30, FIND_MATCH_QUESTION_COUNT)
+        assertEquals(30, DEX_ORDER_QUESTION_COUNT)
+        assertEquals(30, WEIGHT_QUESTION_COUNT)
+        assertEquals(30, SHADOW_MATCH_QUESTION_COUNT)
     }
 
     @Test

@@ -68,7 +68,7 @@ class NewGamesTest {
         val questions = makeQuizQuestions(
             ALL_POKEMON, emptySet(), SHADOW_MATCH_QUESTION_COUNT, SILHOUETTE_OPTION_COUNT, seed = 15L,
         )
-        assertEquals(10, questions.size)
+        assertEquals(30, questions.size)
         questions.forEach { question ->
             assertEquals(3, question.options.size)
             assertEquals(3, question.options.map { it.id }.toSet().size)
@@ -77,11 +77,11 @@ class NewGamesTest {
     }
 
     @Test
-    fun newGamesHaveTenQuestionsPerSession() {
-        // v2.3: all four new games run 10 questions per session.
-        assertEquals(10, FIND_MATCH_QUESTION_COUNT)
-        assertEquals(10, DEX_ORDER_QUESTION_COUNT)
-        assertEquals(10, WEIGHT_QUESTION_COUNT)
-        assertEquals(10, SHADOW_MATCH_QUESTION_COUNT)
+    fun newGamesHaveThirtyQuestionsPerSession() {
+        // v2.4: all four v2.3 games run 30 questions per session (was 10).
+        assertEquals(30, FIND_MATCH_QUESTION_COUNT)
+        assertEquals(30, DEX_ORDER_QUESTION_COUNT)
+        assertEquals(30, WEIGHT_QUESTION_COUNT)
+        assertEquals(30, SHADOW_MATCH_QUESTION_COUNT)
     }
 }
