@@ -1,6 +1,7 @@
 package com.jimmy0933.pokemonkids
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,16 +25,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-const val MAZE_COUNT = 5
+const val MAZE_COUNT = 25
 const val MAZE_SIZE = 5
 
 /** One cell of the maze grid: (row, column), both 0-based. */
@@ -121,10 +126,57 @@ fun findMazePath(maze: Maze): List<MazeCell>? {
  * goal). Pure function, unit-tested. */
 fun isMazeSolvable(maze: Maze): Boolean = findMazePath(maze) != null
 
-/** Walk the maze: a Pokemon starts at one corner and the kid taps the big
- * arrow buttons to move it step by step to the apple at the opposite corner.
- * Walls block movement with a gentle "走不通" and no penalty. 5 mazes per
- * session, no timer; finishing a maze collects the Pokemon shown. */
+/** The cell under a finger position inside the maze grid: [offsetX] and
+ * [offsetY] are in pixels, [gridWidth] and [gridHeight] are the grid size
+ * in pixels. Returns null when the position is outside the grid. Pure
+ * function, unit-tested. */
+fun mazeCellAtOffset(
+    size: Int,
+    gridWidth: Float,
+    gridHeight: Float,
+    offsetX: Float,
+    offsetY: Float,
+): MazeCell? {
+    if (size <= 0 || gridWidth <= 0f || gridHeight <= 0f) return null
+    if (offsetX < 0f || offsetY < 0f || offsetX >= gridWidth || offsetY >= gridHeight) return null
+    val column = (offsetX / (gridWidth / size)).toInt().coerceIn(0, size - 1)
+    val row = (offsetY / (gridHeight / size)).toInt().coerceIn(0, size - 1)
+    return row to column
+}
+
+/** Try to extend the finger-drawn [path] with [cell]: the cell must be
+ * inside the maze, not a wall, and orthogonally adjacent to the last cell
+ * of the path. Dragging back onto a cell already in the path trims the path
+ * back to that cell, so the kid can undo a wrong turn by dragging back.
+ * Anything else leaves the path unchanged. Pure function, unit-tested. */
+fun mazeExtendPath(maze: Maze, path: List<MazeCell>, cell: MazeCell): List<MazeCell> {
+    if (cell.first !in 0 until maze.size || cell.second !in 0 until maze.size) return path
+    if (cell in maze.walls) return path
+    if (path.isEmpty()) {
+        return if (cell == maze.start) listOf(cell) else emptyList()
+    }
+    val last = path.last()
+    if (cell == last) return path
+    val indexInPath = path.indexOf(cell)
+    if (indexInPath >= 0) return path.subList(0, indexInPath + 1).toList()
+    val adjacent = (cell.first == last.first && kotlin.math.abs(cell.second - last.second) == 1) ||
+        (cell.second == last.second && kotlin.math.abs(cell.first - last.first) == 1)
+    if (!adjacent) return path
+    return path + cell
+}
+
+/** True when the drawn path has reached the apple (goal) cell. Pure
+ * function, unit-tested. */
+fun isMazePathComplete(maze: Maze, path: List<MazeCell>): Boolean =
+    path.lastOrNull() == maze.goal
+
+/** Walk the maze: a Pokemon starts at one corner and the kid draws a path
+ * with their finger across the 5x5 grid to the apple at the opposite
+ * corner. The path grows cell by cell through adjacent, non-wall cells;
+ * lifting the finger keeps the drawn path, and the big 「重畫」 button
+ * starts the maze over. Dragging into a wall is simply ignored, with no
+ * penalty. 25 mazes per session, no timer; finishing a maze collects the
+ * Pokemon shown. */
 @Composable
 fun MazeScreen(
     collectedIds: Set<Int>,
@@ -152,9 +204,9 @@ fun MazeScreen(
 
     // Per-maze state, keyed so a new maze (or a new session) resets it.
     val mazeKey = "$sessionSeed-$mazeIndex"
-    var position by remember(mazeKey) { mutableStateOf(maze?.start ?: (0 to 0)) }
+    var path by remember(mazeKey) { mutableStateOf(listOf(maze?.start ?: (0 to 0))) }
     var solved by remember(mazeKey) { mutableStateOf(false) }
-    var blocked by remember(mazeKey) { mutableStateOf(false) }
+    var gridSize by remember(mazeKey) { mutableStateOf(IntSize.Zero) }
 
     fun nextMaze() {
         if (mazeIndex + 1 < mazes.size) {
@@ -164,23 +216,22 @@ fun MazeScreen(
         }
     }
 
-    fun move(dRow: Int, dColumn: Int) {
+    /** Extend the drawn path with the cell under the finger at [offset]. */
+    fun tryDraw(offset: Offset) {
         val currentMaze = maze ?: return
         if (solved) return
-        val next = (position.first + dRow) to (position.second + dColumn)
-        if (next.first !in 0 until currentMaze.size ||
-            next.second !in 0 until currentMaze.size ||
-            next in currentMaze.walls
-        ) {
-            sounds.flip()
-            onSpeak("走不通，再試試別的方向")
-            blocked = true
-            return
-        }
-        blocked = false
-        position = next
+        val cell = mazeCellAtOffset(
+            currentMaze.size,
+            gridSize.width.toFloat(),
+            gridSize.height.toFloat(),
+            offset.x,
+            offset.y,
+        ) ?: return
+        val newPath = mazeExtendPath(currentMaze, path, cell)
+        if (newPath == path) return
+        path = newPath
         sounds.flip()
-        if (next == currentMaze.goal) {
+        if (isMazePathComplete(currentMaze, newPath)) {
             solved = true
             sounds.celebrate()
             pokemon?.let {
@@ -207,87 +258,67 @@ fun MazeScreen(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
         )
         Text(
-            text = when {
-                solved -> "到了！是${pokemon?.name}！🎉"
-                blocked -> "走不通喔！換個方向試試！"
-                else -> "把${pokemon?.name ?: "寶可夢"}帶到蘋果那裡！"
-            },
+            text = if (solved) "到了！是${pokemon?.name}！🎉" else "用手指畫一條路，把${pokemon?.name ?: "寶可夢"}帶到蘋果那裡！",
             fontSize = 24.sp, textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         )
         if (maze != null && pokemon != null) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxWidth().weight(1f),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .onSizeChanged { gridSize = it }
+                    .pointerInput(mazeKey) {
+                        detectDragGestures(
+                            onDragStart = { offset -> tryDraw(offset) },
+                            onDrag = { change, _ -> tryDraw(change.position) },
+                        )
+                    },
             ) {
-                for (row in 0 until maze.size) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth().weight(1f),
-                    ) {
-                        for (column in 0 until maze.size) {
-                            val cell = row to column
-                            val isPlayer = cell == position
-                            val isGoal = cell == maze.goal
-                            val isWall = cell in maze.walls
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()
-                                    .background(
-                                        when {
-                                            isWall -> Color(0xFF78909C)
-                                            isGoal -> Color(0xFFFFCCBC)
-                                            isPlayer -> Color(0xFFC8E6C9)
-                                            else -> Color(0xFFFFF59D)
-                                        },
-                                        RoundedCornerShape(12.dp),
-                                    ),
-                            ) {
-                                when {
-                                    isPlayer -> Image(
-                                        painter = painterResource(drawableId(context, pokemon.drawable)),
-                                        contentDescription = pokemon.name,
-                                        contentScale = ContentScale.Fit,
-                                        modifier = Modifier.fillMaxSize().padding(4.dp),
-                                    )
-                                    isGoal -> Text("🍎", fontSize = 40.sp)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    for (row in 0 until maze.size) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                        ) {
+                            for (column in 0 until maze.size) {
+                                val cell = row to column
+                                val isPlayer = cell == path.lastOrNull()
+                                val isGoal = cell == maze.goal
+                                val isWall = cell in maze.walls
+                                val inPath = cell in path
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .background(
+                                            when {
+                                                isWall -> Color(0xFF78909C)
+                                                isGoal -> Color(0xFFFFCCBC)
+                                                isPlayer -> Color(0xFFC8E6C9)
+                                                inPath -> Color(0xFFBBDEFB)
+                                                else -> Color(0xFFFFF59D)
+                                            },
+                                            RoundedCornerShape(12.dp),
+                                        ),
+                                ) {
+                                    when {
+                                        isPlayer -> Image(
+                                            painter = painterResource(drawableId(context, pokemon.drawable)),
+                                            contentDescription = pokemon.name,
+                                            contentScale = ContentScale.Fit,
+                                            modifier = Modifier.fillMaxSize().padding(4.dp),
+                                        )
+                                        isGoal -> Text("🍎", fontSize = 40.sp)
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            }
-            // Big arrow pad: up on top, left / down / right below.
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-            ) {
-                Button(
-                    onClick = { move(-1, 0) },
-                    modifier = Modifier.fillMaxWidth(0.33f).height(72.dp),
-                    shape = RoundedCornerShape(20.dp),
-                ) { Text("⬆", fontSize = 36.sp) }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                ) {
-                    Button(
-                        onClick = { move(0, -1) },
-                        modifier = Modifier.weight(1f).height(72.dp),
-                        shape = RoundedCornerShape(20.dp),
-                    ) { Text("⬅", fontSize = 36.sp) }
-                    Button(
-                        onClick = { move(1, 0) },
-                        modifier = Modifier.weight(1f).height(72.dp),
-                        shape = RoundedCornerShape(20.dp),
-                    ) { Text("⬇", fontSize = 36.sp) }
-                    Button(
-                        onClick = { move(0, 1) },
-                        modifier = Modifier.weight(1f).height(72.dp),
-                        shape = RoundedCornerShape(20.dp),
-                    ) { Text("➡", fontSize = 36.sp) }
                 }
             }
         }
@@ -297,6 +328,12 @@ fun MazeScreen(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 shape = RoundedCornerShape(24.dp),
             ) { Text("下一個迷宮 ➜", fontSize = 28.sp) }
+        } else {
+            Button(
+                onClick = { path = listOf(maze?.start ?: (0 to 0)) },
+                modifier = Modifier.fillMaxWidth().height(72.dp).padding(top = 12.dp),
+                shape = RoundedCornerShape(20.dp),
+            ) { Text("↺ 重畫", fontSize = 28.sp) }
         }
         Button(
             onClick = onBack,

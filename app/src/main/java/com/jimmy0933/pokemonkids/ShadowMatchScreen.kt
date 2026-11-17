@@ -36,10 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val SHADOW_MATCH_QUESTION_COUNT = 10
+const val SHADOW_MATCH_QUESTION_COUNT = 30
 
 /** Match the silhouette: one Pokemon is shown as a black silhouette on top
- * and the kid taps the matching colour picture out of 3 below. 10 questions
+ * and the kid taps the matching colour picture out of 3 below. 30 questions
  * per session, no timer, no penalty — a wrong tap just says "再試一次" and
  * lets them try again. A correct tap collects the Pokemon into the same
  * Pokedex. Questions reuse [makeQuizQuestions] with 3 options (same helper

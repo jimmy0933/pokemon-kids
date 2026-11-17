@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val DEX_ORDER_QUESTION_COUNT = 10
+const val DEX_ORDER_QUESTION_COUNT = 30
 
 /** One Dex-order question: three distinct Pokemon, sorted by ascending
  * Pokedex number ([options] is the answer order, smallest number first). */
@@ -62,7 +62,7 @@ fun makeDexOrderQuestions(
 
 /** Order by Pokedex number: three Pokemon pictures are shown and the kid taps
  * them in ascending Dex-number order. A wrong tap just says "再試一次" with
- * no penalty. 10 questions per session, no timer; a correct full ordering
+ * no penalty. 30 questions per session, no timer; a correct full ordering
  * collects one of the shown Pokemon. After finishing, each picture shows its
  * Dex number so the kid learns the numbers. */
 @Composable

@@ -2431,15 +2431,23 @@ val ALL_POKEMON: List<Pokemon> = listOf(
 )
 
 
-/** Every round has 8 Pokemon (16 cards, 4x4 grid). 100 rounds x 8 = 800,
- * exactly the whole Dex 1-800, in Dex order. */
+/** Every round has 8 Pokemon (16 cards, 4x4 grid). The first 100 rounds
+ * cover the whole Dex 1-800 in order (100 rounds x 8 = 800); rounds 101-120
+ * are review rounds that replay Dex 1-160 in order, so the kid meets the
+ * early Pokemon again. 120 rounds in total. */
 const val ROUND_SIZE = 8
+
+/** Review rounds replay Dex 1-160 in order: 20 rounds of 8. */
+const val REVIEW_ROUND_COUNT = 20
 
 /** Pokemon per round: 8 for every round (see above). */
 fun roundSize(roundIndex: Int): Int = ROUND_SIZE
 
-/** The rounds: the 800 Pokemon in groups of 8, in Dex order. */
-fun rounds(): List<List<Pokemon>> = ALL_POKEMON.chunked(ROUND_SIZE)
+/** The rounds: the 800 Pokemon in groups of 8, in Dex order, followed by
+ * 20 review rounds replaying Dex 1-160 in order. */
+fun rounds(): List<List<Pokemon>> =
+    ALL_POKEMON.chunked(ROUND_SIZE) +
+        ALL_POKEMON.take(REVIEW_ROUND_COUNT * ROUND_SIZE).chunked(ROUND_SIZE)
 
 val TOTAL_ROUNDS: Int get() = rounds().size
 
@@ -2492,7 +2500,7 @@ fun Pokemon.evolutionFamily(): List<Pokemon> {
 /** One quiz question: the answer and its picture options (answer included). */
 data class QuizQuestion(val answer: Pokemon, val options: List<Pokemon>)
 
-const val QUIZ_QUESTION_COUNT = 20
+const val QUIZ_QUESTION_COUNT = 40
 const val LISTEN_OPTION_COUNT = 4
 const val SILHOUETTE_OPTION_COUNT = 3
 

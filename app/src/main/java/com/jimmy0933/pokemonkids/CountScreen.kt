@@ -39,13 +39,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val COUNT_QUESTION_COUNT = 20
+const val COUNT_QUESTION_COUNT = 40
 
 /** One count question: [shown] Pokemon pictures to count. */
 data class CountQuestion(val shown: List<Pokemon>, val count: Int)
 
 /** Count-the-Pokemon: 1-5 Pokemon pictures are shown and the kid taps the
- * matching big number button. 20 questions per session, no timer, no
+ * matching big number button. 40 questions per session, no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
  * correct answer collects one of the shown Pokemon (an uncollected one if
  * any is still uncollected). */
