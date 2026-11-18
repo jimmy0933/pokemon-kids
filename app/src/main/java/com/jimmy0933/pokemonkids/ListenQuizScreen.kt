@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 /** Listen-and-guess: TTS speaks a Pokemon's name, the kid taps the right
- * picture out of 4. 40 questions per session (QUIZ_QUESTION_COUNT), no timer, no penalty — a wrong
+ * picture out of 4. 109 questions per session (QUIZ_QUESTION_COUNT), no timer, no penalty — a wrong
  * tap just says "再試一次" and lets them try another picture. A correct tap
  * collects the Pokemon into the same Pokedex as matching. */
 @Composable

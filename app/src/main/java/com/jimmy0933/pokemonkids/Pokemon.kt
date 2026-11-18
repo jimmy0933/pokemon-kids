@@ -2500,7 +2500,7 @@ fun Pokemon.evolutionFamily(): List<Pokemon> {
 /** One quiz question: the answer and its picture options (answer included). */
 data class QuizQuestion(val answer: Pokemon, val options: List<Pokemon>)
 
-const val QUIZ_QUESTION_COUNT = 40
+const val QUIZ_QUESTION_COUNT = 109
 const val LISTEN_OPTION_COUNT = 4
 const val SILHOUETTE_OPTION_COUNT = 3
 

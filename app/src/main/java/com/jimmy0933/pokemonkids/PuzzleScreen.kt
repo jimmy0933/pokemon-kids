@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-const val PUZZLE_COUNT = 30
+const val PUZZLE_COUNT = 109
 
 /** Shuffle the 4 pieces (0..3) so the picture never starts out solved. */
 private fun shuffledPieceOrder(seed: Long): List<Int> {

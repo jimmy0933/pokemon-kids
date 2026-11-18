@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val WEIGHT_QUESTION_COUNT = 30
+const val WEIGHT_QUESTION_COUNT = 109
 
 /** One weight question: three distinct Pokemon, sorted heaviest first
  * ([options] is the answer order, heaviest first). */
@@ -62,7 +62,7 @@ fun makeWeightQuestions(
 }
 
 /** Guess the heaviest: three Pokemon pictures are shown and the kid taps the
- * heaviest one. A wrong tap just says "再試一次" with no penalty. 30
+ * heaviest one. A wrong tap just says "再試一次" with no penalty. 109
  * questions per session, no timer; a correct tap collects the heaviest
  * Pokemon. After answering, each picture shows its weight so the kid learns
  * heavy and light. */

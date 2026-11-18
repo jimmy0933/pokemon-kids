@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val SIZE_QUESTION_COUNT = 30
+const val SIZE_QUESTION_COUNT = 109
 
 /** One size question: three distinct Pokemon, sorted tallest first
  * ([options] is the answer order, tallest to shortest). */
@@ -63,7 +63,7 @@ fun makeSizeQuestions(
 
 /** Compare sizes: three Pokemon pictures are shown and the kid taps them in
  * order from tallest to shortest. A wrong tap just says "再試一次" with no
- * penalty. 30 questions per session, no timer; a correct full ordering
+ * penalty. 109 questions per session, no timer; a correct full ordering
  * collects one of the shown Pokemon. */
 @Composable
 fun SizeScreen(

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val CATCH_COUNT = 30
+const val CATCH_COUNT = 109
 const val CATCH_HOLE_COUNT = 6
 
 /** Pick the next hole (0 until [holeCount]) for a Pokemon to pop out of,
@@ -73,7 +73,7 @@ fun nextCatchPokemon(
 /** Catch the Pokemon: a Pokemon pops up out of one of 6 bushes and the kid
  * taps it to catch it and collect it. No timer, no penalty — the Pokemon
  * waits until it is tapped, and tapping an empty bush just makes it hop to
- * another bush. 30 catches per session. */
+ * another bush. 109 catches per session. */
 @Composable
 fun CatchScreen(
     collectedIds: Set<Int>,

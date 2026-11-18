@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val FIND_MATCH_QUESTION_COUNT = 30
+const val FIND_MATCH_QUESTION_COUNT = 109
 
 /** One find-match question: the [target] shown big on top and 4 picture
  * options below, one of which is identical to the target. */
@@ -66,7 +66,7 @@ fun makeFindMatchQuestions(
 }
 
 /** Find the identical picture: one Pokemon is shown big on top and the kid
- * taps the identical picture out of 4 below. 30 questions per session, no
+ * taps the identical picture out of 4 below. 109 questions per session, no
  * timer, no penalty — a wrong tap just says "再試一次" and lets them try
  * again. A correct tap collects the Pokemon into the same Pokedex. */
 @Composable

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 /** Silhouette guess: one Pokemon is shown as a black silhouette and the kid
- * taps the matching picture out of 3. 40 questions per session (QUIZ_QUESTION_COUNT), no timer, no
+ * taps the matching picture out of 3. 109 questions per session (QUIZ_QUESTION_COUNT), no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
  * correct tap collects the Pokemon into the same Pokedex as matching. */
 @Composable

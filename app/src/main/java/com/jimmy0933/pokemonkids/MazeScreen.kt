@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-const val MAZE_COUNT = 25
+const val MAZE_COUNT = 109
 const val MAZE_SIZE = 7
 
 /** One cell of the maze grid: (row, column), both 0-based. */
@@ -178,7 +178,7 @@ fun isMazePathComplete(maze: Maze, path: List<MazeCell>): Boolean =
  * starts the maze over. Dragging into a wall is simply ignored, with no
  * penalty. The walked path is not highlighted: path cells look the same as
  * unvisited cells, and the Pokemon sitting at the path's end shows how far
- * the kid has got. 25 mazes per session, no timer; finishing a maze
+ * the kid has got. 109 mazes per session, no timer; finishing a maze
  * collects the Pokemon shown. */
 @Composable
 fun MazeScreen(

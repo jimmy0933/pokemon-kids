@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-const val COLOR_SORT_QUESTION_COUNT = 40
+const val COLOR_SORT_QUESTION_COUNT = 109
 
 /** The four colour boxes the kid sorts Pokemon into. */
 enum class ColorCategory(val label: String, val color: Color, val textColor: Color = Color.White) {
@@ -139,10 +139,21 @@ fun colorOf(id: Int): ColorCategory? = COLOR_SORT_MAP[id]
 /** The Pokemon usable in colour sorting. */
 fun colorSortPool(): List<Pokemon> = ALL_POKEMON.filter { it.id in COLOR_SORT_MAP }
 
+/** Build [count] colour-sort questions from the curated pool. The pool has
+ * only 72 entries, so for a longer session it is reshuffled and cycled
+ * through as many times as needed — each pass is a full shuffle with no
+ * repeat inside it. Pure function, unit-tested. */
+fun colorSortQuestions(count: Int, seed: Long): List<Pokemon> {
+    val pool = colorSortPool()
+    val random = kotlin.random.Random(seed)
+    return generateSequence { pool.shuffled(random) }.flatten().take(count).toList()
+}
+
 /** Colour sorting: a Pokemon is shown and the kid taps which colour box it
- * belongs to (紅 / 藍 / 黃 / 綠). 40 questions per session, no timer, no
+ * belongs to (紅 / 藍 / 黃 / 綠). 109 questions per session, no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
- * correct tap collects the Pokemon into the same Pokedex as matching. */
+ * correct tap collects the Pokemon into the same Pokedex as matching. The
+ * 72-entry pool is reshuffled and cycled to fill the session. */
 @Composable
 fun ColorSortScreen(
     collectedIds: Set<Int>,
@@ -154,7 +165,7 @@ fun ColorSortScreen(
 ) {
     var sessionSeed by remember { mutableStateOf(System.currentTimeMillis()) }
     val questions = remember(sessionSeed) {
-        colorSortPool().shuffled(kotlin.random.Random(sessionSeed)).take(COLOR_SORT_QUESTION_COUNT)
+        colorSortQuestions(COLOR_SORT_QUESTION_COUNT, sessionSeed)
     }
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongCategories by remember(sessionSeed) { mutableStateOf(setOf<ColorCategory>()) }
