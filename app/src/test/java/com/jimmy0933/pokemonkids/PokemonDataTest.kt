@@ -234,22 +234,24 @@ class PokemonDataTest {
     }
 
     @Test
-    fun sessionCountsArePlusTwentyForV24() {
-        // v2.4 adds 20 to every per-session count: quiz 20 -> 40, puzzle 10 -> 30.
-        assertEquals(40, QUIZ_QUESTION_COUNT)
-        assertEquals(30, PUZZLE_COUNT)
-        assertEquals(40, FIND_IT_QUESTION_COUNT)
-        assertEquals(40, COUNT_QUESTION_COUNT)
-        assertEquals(40, COLOR_SORT_QUESTION_COUNT)
-        // Maze 5 -> 25, catches 10 -> 30, size questions 10 -> 30 per session.
-        assertEquals(25, MAZE_COUNT)
-        assertEquals(30, CATCH_COUNT)
-        assertEquals(30, SIZE_QUESTION_COUNT)
-        // v2.3 games: 10 -> 30 questions per session.
-        assertEquals(30, FIND_MATCH_QUESTION_COUNT)
-        assertEquals(30, DEX_ORDER_QUESTION_COUNT)
-        assertEquals(30, WEIGHT_QUESTION_COUNT)
-        assertEquals(30, SHADOW_MATCH_QUESTION_COUNT)
+    fun sessionCountsAreOneHundredNineForV26() {
+        // v2.6 raises every per-session count to 109 (matching stays 120 rounds,
+        // already above 109 — it is not cut down).
+        assertEquals(109, QUIZ_QUESTION_COUNT)
+        assertEquals(109, PUZZLE_COUNT)
+        assertEquals(109, FIND_IT_QUESTION_COUNT)
+        assertEquals(109, COUNT_QUESTION_COUNT)
+        assertEquals(109, COLOR_SORT_QUESTION_COUNT)
+        assertEquals(109, MAZE_COUNT)
+        assertEquals(109, CATCH_COUNT)
+        assertEquals(109, SIZE_QUESTION_COUNT)
+        // v2.3 games: 109 questions per session.
+        assertEquals(109, FIND_MATCH_QUESTION_COUNT)
+        assertEquals(109, DEX_ORDER_QUESTION_COUNT)
+        assertEquals(109, WEIGHT_QUESTION_COUNT)
+        assertEquals(109, SHADOW_MATCH_QUESTION_COUNT)
+        // Matching is untouched at 120 rounds.
+        assertEquals(120, TOTAL_ROUNDS)
     }
 
     @Test
@@ -359,5 +361,25 @@ class PokemonDataTest {
         // Every pooled Pokemon has a colour, and the pool matches the map exactly.
         assertTrue(pool.all { colorOf(it.id) != null })
         assertEquals(COLOR_SORT_MAP.keys, pool.map { it.id }.toSet())
+    }
+
+    @Test
+    fun colorSortQuestionsCycleThroughPoolToReach109() {
+        // The curated pool has only 72 entries, but a session is 109 questions:
+        // the pool is reshuffled and cycled, never silently capped at 72.
+        val questions = colorSortQuestions(109, seed = 7L)
+        assertEquals(109, questions.size)
+        assertTrue(questions.all { colorOf(it.id) != null })
+        // Each full pass is a shuffle with no repeat inside it: the first 72
+        // are all distinct, and the remaining 37 are all distinct too.
+        assertEquals(72, questions.take(72).map { it.id }.toSet().size)
+        assertEquals(37, questions.drop(72).map { it.id }.toSet().size)
+        // Same seed, same questions.
+        assertEquals(
+            questions.map { it.id },
+            colorSortQuestions(109, seed = 7L).map { it.id },
+        )
+        // A short session still works without cycling.
+        assertEquals(72, colorSortQuestions(72, seed = 7L).map { it.id }.toSet().size)
     }
 }
