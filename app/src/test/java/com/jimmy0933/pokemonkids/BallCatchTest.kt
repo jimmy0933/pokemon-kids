@@ -5,7 +5,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 class BallCatchTest {
 
@@ -232,5 +235,259 @@ class BallCatchTest {
         val next = roamStep(state, 50L, BALL_CATCH_POKEMON_SPEED_DP, 360f, 500f, 55f, random)
         val moved = Offset(next.x - state.x, next.y - state.y).getDistance()
         assertEquals("one step must move speed * dt", 6f, moved, 0.01f)
+    }
+
+    // --- v2.12: first-tap grab (regression test for the v2.11 bug) ---
+    //
+    // The v2.11 bug ("first tap on the ball does nothing, second tap
+    // works") had two causes in the gesture code: (1) pointerInput was
+    // keyed on (areaWidth, areaHeight), so the detector restarted — and
+    // dropped the in-progress gesture — when the field size settled after
+    // the first layout, exactly when a kid grabs the ball for the first
+    // time; (2) the grab check read ballPos, which starts null and is
+    // only set by a LaunchedEffect. The fix: a stable pointerInput(Unit)
+    // key with the size from onSizeChanged, a grab on the press itself
+    // (not after the touch slop), and canGrabBall falling back to the
+    // ball's home when it has not been placed yet. The gesture loop
+    // itself can only run on a real device, so these tests cover the
+    // pure grab check it relies on.
+
+    @Test
+    fun canGrabBallFallsBackToHomeWhenBallIsNull() {
+        val home = ballHome(360f, 500f)
+        assertTrue(
+            "press on the home must grab even before placement",
+            canGrabBall(home, null, BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f),
+        )
+        assertTrue(
+            "press near the home must grab even before placement",
+            canGrabBall(
+                Offset(home.x + 80f, home.y), null,
+                BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f,
+            ),
+        )
+        assertFalse(
+            "press far from the home must not grab",
+            canGrabBall(Offset(0f, 0f), null, BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f),
+        )
+    }
+
+    @Test
+    fun canGrabBallUsesBallPositionWhenSet() {
+        val ball = Offset(100f, 100f)
+        assertTrue(
+            canGrabBall(Offset(100f, 100f), ball, BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f),
+        )
+        assertFalse(
+            canGrabBall(Offset(300f, 300f), ball, BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f),
+        )
+    }
+
+    @Test
+    fun canGrabBallBoundary() {
+        val ball = Offset(180f, 400f)
+        assertTrue(
+            "exactly at the grab radius still grabs",
+            canGrabBall(
+                Offset(180f + BALL_CATCH_GRAB_RADIUS_DP, 400f), ball,
+                BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f,
+            ),
+        )
+        assertFalse(
+            "just beyond the grab radius does not grab",
+            canGrabBall(
+                Offset(180f + BALL_CATCH_GRAB_RADIUS_DP + 1f, 400f), ball,
+                BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f,
+            ),
+        )
+    }
+
+    // --- v2.12: smooth motion ---
+
+    @Test
+    fun steerHeadingMovesTowardTarget() {
+        val east = Offset(1f, 0f)
+        val north = Offset(0f, -1f)
+        // No time: no turn.
+        val stayed = steerHeading(east, north, 0f, 0.3f)
+        assertEquals(1f, stayed.x, 0.01f)
+        assertEquals(0f, stayed.y, 0.01f)
+        // Full steer time: reaches the target.
+        val arrived = steerHeading(east, north, 0.3f, 0.3f)
+        assertEquals(0f, arrived.x, 0.01f)
+        assertEquals(-1f, arrived.y, 0.01f)
+        // Halfway: 45 degrees between east and north.
+        val half = steerHeading(east, north, 0.15f, 0.3f)
+        assertEquals(0.707f, half.x, 0.01f)
+        assertEquals(-0.707f, half.y, 0.01f)
+        // Turns the short way: from -10 degrees to +10 degrees goes
+        // through 0 degrees, not the long way around.
+        val minusTen = Offset(
+            cos(-10f * PI.toFloat() / 180f),
+            sin(-10f * PI.toFloat() / 180f),
+        )
+        val plusTen = Offset(
+            cos(10f * PI.toFloat() / 180f),
+            sin(10f * PI.toFloat() / 180f),
+        )
+        val short = steerHeading(minusTen, plusTen, 0.15f, 0.3f)
+        assertEquals(1f, short.x, 0.01f)
+        assertEquals(0f, short.y, 0.01f)
+    }
+
+    @Test
+    fun steerHeadingKeepsUnitLength() {
+        val random = kotlin.random.Random(51L)
+        repeat(100) {
+            val a = random.nextFloat() * 2f * PI.toFloat()
+            val b = random.nextFloat() * 2f * PI.toFloat()
+            val steered = steerHeading(
+                Offset(cos(a), sin(a)), Offset(cos(b), sin(b)), 0.05f, 0.3f,
+            )
+            assertEquals("steered heading must stay a unit vector", 1f, steered.getDistance(), 0.001f)
+        }
+    }
+
+    @Test
+    fun roamStepSteersSmoothlyInsteadOfSnapping() {
+        val random = kotlin.random.Random(54L)
+        // Heading east, target north (fresh turn): one 16ms frame turns
+        // only a little, it must not snap to the new heading.
+        var state = RoamState(
+            x = 180f, y = 250f, dirX = 1f, dirY = 0f, turnInMs = 1000L,
+            targetDirX = 0f, targetDirY = -1f,
+        )
+        state = roamStep(state, 16L, BALL_CATCH_POKEMON_SPEED_DP, 360f, 500f, 55f, random)
+        assertTrue("one frame must not snap to the new heading", state.dirX > 0.9f)
+        assertTrue("heading must start turning", state.dirY < 0f)
+        // After many frames it arrives at the target heading (the turn
+        // timer fires after 1000ms, i.e. after 62 frames, so 60 more
+        // frames stay on the same target).
+        repeat(60) {
+            state = roamStep(state, 16L, BALL_CATCH_POKEMON_SPEED_DP, 360f, 500f, 55f, random)
+        }
+        assertTrue("heading must converge on the target", state.dirY < -0.9f)
+    }
+
+    @Test
+    fun bobOffsetValues() {
+        assertEquals(0f, bobOffset(0f, 4f, 1.6f), 0.01f)
+        assertEquals(4f, bobOffset(0.4f, 4f, 1.6f), 0.01f)
+        assertEquals(0f, bobOffset(0.8f, 4f, 1.6f), 0.01f)
+        assertEquals(-4f, bobOffset(1.2f, 4f, 1.6f), 0.01f)
+    }
+
+    @Test
+    fun pokemonTiltLeansWithMovement() {
+        assertEquals(14f, pokemonTilt(1f), 0.01f)
+        assertEquals(-14f, pokemonTilt(-1f), 0.01f)
+        assertEquals(0f, pokemonTilt(0f), 0.01f)
+        assertEquals(7f, pokemonTilt(0.5f), 0.01f)
+    }
+
+    @Test
+    fun spinDeltaIsProportionalToDistance() {
+        // One full roll (2 * PI * radius) is 360 degrees.
+        assertEquals(360f, spinDelta(2f * PI.toFloat() * 36f, 36f), 0.5f)
+        assertEquals(180f, spinDelta(PI.toFloat() * 36f, 36f), 0.5f)
+        assertEquals(0f, spinDelta(0f, 36f), 0.01f)
+    }
+
+    @Test
+    fun ballArcHelpersPeakMidFlight() {
+        assertEquals(1f, ballArcScale(0f), 0.01f)
+        assertEquals(1.18f, ballArcScale(0.5f), 0.01f)
+        assertEquals(1f, ballArcScale(1f), 0.01f)
+        assertEquals(1f, ballShadowScale(0f), 0.01f)
+        assertEquals(0.55f, ballShadowScale(0.5f), 0.01f)
+        assertEquals(1f, ballShadowScale(1f), 0.01f)
+        assertEquals(0.22f, ballShadowAlpha(0f), 0.01f)
+        assertEquals(14f, ballLiftDp(0.5f), 0.01f)
+        assertEquals(0f, ballLiftDp(0f), 0.01f)
+        assertEquals(0f, ballLiftDp(1f), 0.01f)
+    }
+
+    @Test
+    fun aimPreviewDotsFadeAlongTheLine() {
+        val ball = Offset(180f, 400f)
+        val dots = aimPreviewDots(ball, Offset(180f, 400f), Offset(180f, 300f))
+        assertEquals(BALL_CATCH_AIM_DOT_COUNT, dots.size)
+        // First dot is just ahead of the ball, last dot furthest along.
+        assertTrue(dots.first().pos.y < ball.y)
+        assertTrue(dots.last().pos.y < dots.first().pos.y)
+        // Dots run along the drag direction (same x for a straight-up drag).
+        dots.forEach { assertEquals(180f, it.pos.x, 0.5f) }
+        // Alpha and size fade along the length.
+        assertTrue(dots.first().alpha > dots.last().alpha)
+        assertTrue(dots.first().radius > dots.last().radius)
+        // No drag direction: no dots.
+        assertTrue(aimPreviewDots(ball, Offset(180f, 400f), Offset(180f, 400f)).isEmpty())
+    }
+
+    // --- v2.12: hit / catch feedback ---
+
+    @Test
+    fun particleBurstStartsAtCentreAndSpreadsOut() {
+        val centre = Offset(200f, 200f)
+        val burst = particleBurst(14, seed = 52L)
+        assertEquals(14, burst.size)
+        burst.forEach { particle ->
+            val start = particlePosition(particle, centre, 0f)
+            assertEquals(centre.x, start.x, 0.01f)
+            assertEquals(centre.y, start.y, 0.01f)
+            val end = particlePosition(particle, centre, 1f)
+            val travelled = Offset(end.x - centre.x, end.y - centre.y).getDistance()
+            assertEquals(
+                "particle must travel its full distance by the end",
+                particle.distance, travelled, 0.5f,
+            )
+            assertEquals("particle starts fully visible", 1f, particleAlpha(particle, 0f), 0.01f)
+            assertEquals("particle ends invisible", 0f, particleAlpha(particle, 1f), 0.01f)
+        }
+    }
+
+    @Test
+    fun ringAndFlashFadeWithProgress() {
+        assertEquals(0f, ringRadius(0f, 90f), 0.01f)
+        assertEquals(90f, ringRadius(1f, 90f), 0.01f)
+        assertTrue("ease-out ring grows more than half-way by mid-time", ringRadius(0.5f, 90f) > 45f)
+        assertEquals(0.8f, ringAlpha(0f), 0.01f)
+        assertEquals(0f, ringAlpha(1f), 0.01f)
+        assertTrue("flash starts bright", flashAlpha(0f) > 0f)
+        assertEquals("flash is gone by mid-hit", 0f, flashAlpha(0.5f), 0.01f)
+    }
+
+    @Test
+    fun confettiBurstsOutAndFalls() {
+        val centre = Offset(200f, 200f)
+        val pieces = confettiBurst(24, seed = 53L)
+        assertEquals(24, pieces.size)
+        pieces.forEach { piece ->
+            val start = confettiPosition(piece, centre, 0f)
+            assertEquals(centre.x, start.x, 0.01f)
+            assertEquals(centre.y, start.y, 0.01f)
+            val end = confettiPosition(piece, centre, 1f)
+            assertTrue("confetti must end up below the centre", end.y > centre.y)
+        }
+    }
+
+    @Test
+    fun entranceScalePopsIn() {
+        assertEquals(0f, entranceScale(0f), 0.01f)
+        assertEquals(1f, entranceScale(400f), 0.01f)
+        assertTrue("ease-out-back overshoots mid-way", entranceScale(200f) > 1f)
+        assertEquals(0f, entranceAlpha(0f), 0.01f)
+        assertEquals(1f, entranceAlpha(200f), 0.01f)
+        assertEquals(1f, bubbleAlpha(0f), 0.01f)
+        assertEquals(0f, bubbleAlpha(600f), 0.01f)
+    }
+
+    @Test
+    fun smoothProgressEasesTowardTarget() {
+        assertEquals(0f, smoothProgress(0f, 1f, 0f, 6f), 0.001f)
+        val step = smoothProgress(0f, 1f, 0.1f, 6f)
+        assertTrue("progress must move toward the target", step > 0f && step < 1f)
+        assertEquals(1f, smoothProgress(1f, 1f, 0.1f, 6f), 0.001f)
+        assertTrue("progress must never overshoot", smoothProgress(0.9f, 1f, 1f, 6f) <= 1f)
     }
 }
