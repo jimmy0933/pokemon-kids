@@ -72,6 +72,7 @@ sealed interface Screen {
     data object EvoOrder : Screen
     data object Math : Screen
     data object OddOneOut : Screen
+    data object BallCatch : Screen
 }
 
 class MainActivity : ComponentActivity() {
@@ -136,6 +137,7 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onEvoOrder = { screen = Screen.EvoOrder },
             onMath = { screen = Screen.Math },
             onOddOneOut = { screen = Screen.OddOneOut },
+            onBallCatch = { screen = Screen.BallCatch },
         )
         Screen.Rounds -> RoundSelectScreen(
             collectedIds = collected,
@@ -300,6 +302,14 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
+        Screen.BallCatch -> BallCatchScreen(
+            collectedIds = collected,
+            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
+            onSpeak = onSpeak,
+            sounds = sounds,
+            onBack = { screen = Screen.Home },
+            onOpenCollection = { screen = Screen.Collection },
+        )
     }
 }
 
@@ -326,6 +336,7 @@ fun HomeScreen(
     onEvoOrder: () -> Unit,
     onMath: () -> Unit,
     onOddOneOut: () -> Unit,
+    onBallCatch: () -> Unit,
 ) {
     val context = LocalContext.current
     Column(
@@ -461,6 +472,12 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth().height(88.dp),
             shape = RoundedCornerShape(24.dp),
         ) { Text("👀 找不同（進階）", fontSize = 32.sp) }
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onBallCatch,
+            modifier = Modifier.fillMaxWidth().height(88.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) { Text("🎯 丟球抓寶（進階）", fontSize = 32.sp) }
         Spacer(modifier = Modifier.height(24.dp))
         Text("給 4 歲小朋友玩：看圖配對，收集寶可夢", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
         Text("★ 進階玩法難一點，適合 8 歲小朋友", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
