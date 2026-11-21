@@ -950,7 +950,7 @@ fun BallCatchScreen(
                         .onSizeChanged { px ->
                             fieldSizeDp = Offset(px.width / density, px.height / density)
                         }
-                        .pointerInput(Unit) {
+                        .pointerInput(sessionSeed, index) {
                             // v2.11 first-tap bug, fixed here: the old code
                             // keyed pointerInput on (areaWidth, areaHeight),
                             // so the gesture detector restarted — and
@@ -958,9 +958,22 @@ fun BallCatchScreen(
                             // the field size settled after the first layout
                             // (weight + navigation-bar insets arriving),
                             // which is exactly when a kid grabs the ball
-                            // for the first time. The key is now stable
-                            // (Unit); the size arrives via onSizeChanged
-                            // state instead, which the block reads live.
+                            // for the first time. The size now arrives via
+                            // onSizeChanged state instead, which the block
+                            // reads live — never key this on the layout size.
+                            // v2.13: the key MUST include the encounter
+                            // (sessionSeed, index). ballPos is
+                            // remember(sessionSeed, index), so each
+                            // encounter gets a fresh state object; a Unit
+                            // key would leave this block holding the FIRST
+                            // encounter's ballPos forever, and after a
+                            // catch the press on the visible ball (back at
+                            // home) would be checked against the stale
+                            // catch position and ignored — "second Pokemon,
+                            // ball cannot be thrown". The restart is safe:
+                            // the key only changes at the Caught -> Idle
+                            // transition, when no drag can be in progress
+                            // (grabs are ignored unless phase is Idle).
                             // The grab also happens on the press itself
                             // (detectDragGestures only fires after the
                             // touch slop, so a first press showed no
