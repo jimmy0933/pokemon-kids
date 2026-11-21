@@ -12,8 +12,8 @@ android {
         applicationId = "com.jimmy0933.pokemonkids"
         minSdk = 30
         targetSdk = 35
-        versionCode = 16
-        versionName = "2.8"
+        versionCode = 17
+        versionName = "2.9"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
