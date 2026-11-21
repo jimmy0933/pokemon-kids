@@ -1,5 +1,6 @@
 package com.jimmy0933.pokemonkids
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.background
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -39,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 const val MAZE_COUNT = 109
-const val MAZE_SIZE = 7
+const val MAZE_SIZE = 9
 
 /** One cell of the maze grid: (row, column), both 0-based. */
 typealias MazeCell = Pair<Int, Int>
@@ -171,15 +173,39 @@ fun mazeExtendPath(maze: Maze, path: List<MazeCell>, cell: MazeCell): List<MazeC
 fun isMazePathComplete(maze: Maze, path: List<MazeCell>): Boolean =
     path.lastOrNull() == maze.goal
 
+/** The polyline points of the finger-drawn route: the centre of each cell in
+ * [path], in the order the finger drew them, in pixels inside a grid of
+ * [gridWidth] × [gridHeight] with [size] cells per side. The screen draws
+ * these points as one continuous line, so the kid sees the route their
+ * finger drew. Empty path (or a non-positive size/grid) → no points. Pure
+ * function, unit-tested. */
+fun mazePathLinePoints(
+    path: List<MazeCell>,
+    size: Int,
+    gridWidth: Float,
+    gridHeight: Float,
+): List<Offset> {
+    if (path.isEmpty() || size <= 0 || gridWidth <= 0f || gridHeight <= 0f) return emptyList()
+    return path.map { (row, column) ->
+        Offset(
+            (column + 0.5f) * gridWidth / size,
+            (row + 0.5f) * gridHeight / size,
+        )
+    }
+}
+
 /** Walk the maze: a Pokemon starts at one corner and the kid draws a path
- * with their finger across the 7x7 grid to the apple at the opposite
+ * with their finger across the 9x9 grid to the apple at the opposite
  * corner. The path grows cell by cell through adjacent, non-wall cells;
  * lifting the finger keeps the drawn path, and the big 「重畫」 button
  * starts the maze over. Dragging into a wall is simply ignored, with no
- * penalty. The walked path is not highlighted: path cells look the same as
- * unvisited cells, and the Pokemon sitting at the path's end shows how far
- * the kid has got. 109 mazes per session, no timer; finishing a maze
- * collects the Pokemon shown. */
+ * penalty. The walked route is shown as a blue line joining the centres of
+ * the path cells, in the order the finger drew them — the line grows as
+ * the finger moves, shortens when the kid drags back, and clears on
+ * 「重畫」. The cells themselves keep their colours (path cells look the
+ * same as unvisited cells); the Pokemon sitting at the path's end shows
+ * how far the kid has got. 109 mazes per session, no timer; finishing a
+ * maze collects the Pokemon shown. */
 @Composable
 fun MazeScreen(
     collectedIds: Set<Int>,
@@ -279,12 +305,12 @@ fun MazeScreen(
                     },
             ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     for (row in 0 until maze.size) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(3.dp),
                             modifier = Modifier.fillMaxWidth().weight(1f),
                         ) {
                             for (column in 0 until maze.size) {
@@ -302,13 +328,14 @@ fun MazeScreen(
                                                 isWall -> Color(0xFF78909C)
                                                 isGoal -> Color(0xFFFFCCBC)
                                                 isPlayer -> Color(0xFFC8E6C9)
-                                                // Walked path cells look the same as
-                                                // unvisited cells on purpose: the
+                                                // Walked path cells keep their colour on
+                                                // purpose: the route is shown by the blue
+                                                // line drawn over the grid, and the
                                                 // Pokemon at the path's end shows
                                                 // the progress.
                                                 else -> Color(0xFFFFF59D)
                                             },
-                                            RoundedCornerShape(8.dp),
+                                            RoundedCornerShape(6.dp),
                                         ),
                                 ) {
                                     when {
@@ -316,12 +343,45 @@ fun MazeScreen(
                                             painter = painterResource(drawableId(context, pokemon.drawable)),
                                             contentDescription = pokemon.name,
                                             contentScale = ContentScale.Fit,
-                                            modifier = Modifier.fillMaxSize().padding(4.dp),
+                                            modifier = Modifier.fillMaxSize().padding(2.dp),
                                         )
-                                        isGoal -> Text("🍎", fontSize = 28.sp)
+                                        isGoal -> Text("🍎", fontSize = 24.sp)
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+                // The finger-drawn route as a blue line over the grid: it
+                // joins the centres of the path cells in the order the
+                // finger drew them, so it grows as the finger moves,
+                // shortens when the kid drags back, and clears on 「重畫」.
+                // The cells underneath keep their colours.
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val points = mazePathLinePoints(
+                        path,
+                        maze.size,
+                        gridSize.width.toFloat(),
+                        gridSize.height.toFloat(),
+                    )
+                    if (points.isEmpty()) return@Canvas
+                    val lineColor = Color(0xFF1976D2)
+                    val strokeWidth = gridSize.width.toFloat() / maze.size * 0.3f
+                    if (points.size == 1) {
+                        drawCircle(
+                            color = lineColor,
+                            radius = strokeWidth / 2f,
+                            center = points[0],
+                        )
+                    } else {
+                        for (i in 0 until points.size - 1) {
+                            drawLine(
+                                color = lineColor,
+                                start = points[i],
+                                end = points[i + 1],
+                                strokeWidth = strokeWidth,
+                                cap = StrokeCap.Round,
+                            )
                         }
                     }
                 }
