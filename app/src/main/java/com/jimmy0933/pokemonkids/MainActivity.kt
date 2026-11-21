@@ -62,7 +62,6 @@ sealed interface Screen {
     data object Care : Screen
     data object ColorSort : Screen
     data object Maze : Screen
-    data object Catch : Screen
     data object Size : Screen
     data object FindMatch : Screen
     data object DexOrder : Screen
@@ -127,7 +126,6 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onCare = { screen = Screen.Care },
             onColorSort = { screen = Screen.ColorSort },
             onMaze = { screen = Screen.Maze },
-            onCatch = { screen = Screen.Catch },
             onSize = { screen = Screen.Size },
             onFindMatch = { screen = Screen.FindMatch },
             onDexOrder = { screen = Screen.DexOrder },
@@ -215,14 +213,6 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.Maze -> MazeScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
-            onSpeak = onSpeak,
-            sounds = sounds,
-            onBack = { screen = Screen.Home },
-            onOpenCollection = { screen = Screen.Collection },
-        )
-        Screen.Catch -> CatchScreen(
             collectedIds = collected,
             onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
@@ -326,7 +316,6 @@ fun HomeScreen(
     onCare: () -> Unit,
     onColorSort: () -> Unit,
     onMaze: () -> Unit,
-    onCatch: () -> Unit,
     onSize: () -> Unit,
     onFindMatch: () -> Unit,
     onDexOrder: () -> Unit,
@@ -414,12 +403,6 @@ fun HomeScreen(
         ) { Text("🌀 走迷宮", fontSize = 32.sp) }
         Spacer(modifier = Modifier.height(20.dp))
         Button(
-            onClick = onCatch,
-            modifier = Modifier.fillMaxWidth().height(88.dp),
-            shape = RoundedCornerShape(24.dp),
-        ) { Text("⚾ 抓寶可夢", fontSize = 32.sp) }
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
             onClick = onSize,
             modifier = Modifier.fillMaxWidth().height(88.dp),
             shape = RoundedCornerShape(24.dp),
@@ -477,7 +460,7 @@ fun HomeScreen(
             onClick = onBallCatch,
             modifier = Modifier.fillMaxWidth().height(88.dp),
             shape = RoundedCornerShape(24.dp),
-        ) { Text("🎯 丟球抓寶（進階）", fontSize = 32.sp) }
+        ) { Text("🎯 抓寶可夢（進階）", fontSize = 32.sp) }
         Spacer(modifier = Modifier.height(24.dp))
         Text("給 4 歲小朋友玩：看圖配對，收集寶可夢", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
         Text("★ 進階玩法難一點，適合 8 歲小朋友", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
