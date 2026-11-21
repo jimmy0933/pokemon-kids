@@ -1,5 +1,6 @@
 package com.jimmy0933.pokemonkids
 
+import androidx.compose.ui.geometry.Offset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -104,15 +105,15 @@ class MazePathTest {
     }
 
     @Test
-    fun defaultMazeIsSevenBySeven() {
-        // v2.5 grows the maze from 5x5 to 7x7.
-        assertEquals(7, MAZE_SIZE)
+    fun defaultMazeIsNineByNine() {
+        // v2.8 grows the maze from 7x7 to 9x9.
+        assertEquals(9, MAZE_SIZE)
         val maze = makeMaze(0L)
-        assertEquals(7, maze.size)
+        assertEquals(9, maze.size)
         assertEquals(0 to 0, maze.start)
-        assertEquals(6 to 6, maze.goal)
+        assertEquals(8 to 8, maze.goal)
         assertTrue(isMazeSolvable(maze))
-        // Finger-drawing the BFS shortest path still completes a 7x7 maze.
+        // Finger-drawing the BFS shortest path still completes a 9x9 maze.
         val solution = findMazePath(maze)!!
         var path = listOf(maze.start)
         for (cell in solution.drop(1)) {
@@ -123,21 +124,33 @@ class MazePathTest {
     }
 
     @Test
-    fun cellAtOffsetMapsPixelsToCellsOnSevenBySeven() {
-        // 7x7 grid, 700x700 px: each cell is 100x100 px.
-        assertEquals(0 to 0, mazeCellAtOffset(7, 700f, 700f, 0f, 0f))
-        assertEquals(0 to 3, mazeCellAtOffset(7, 700f, 700f, 350f, 50f))
-        assertEquals(3 to 0, mazeCellAtOffset(7, 700f, 700f, 50f, 350f))
-        assertEquals(6 to 6, mazeCellAtOffset(7, 700f, 700f, 699f, 699f))
-        assertEquals(3 to 5, mazeCellAtOffset(7, 700f, 700f, 550f, 350f))
-        assertNull(mazeCellAtOffset(7, 700f, 700f, 700f, 50f))
-        assertNull(mazeCellAtOffset(7, 700f, 700f, 50f, 700f))
+    fun nineByNineMazeOpenWallBalance() {
+        // 9x9 = 81 cells: the carved path is 2*9-1 = 17 cells, plus 9 extra
+        // open cells, so 26 open and 55 walls — a maze, not a corridor,
+        // and not almost all walls either.
+        val maze = makeMaze(0L)
+        assertEquals(55, maze.walls.size)
+        assertEquals(26, 81 - maze.walls.size)
+        assertTrue(maze.start !in maze.walls)
+        assertTrue(maze.goal !in maze.walls)
+    }
+
+    @Test
+    fun cellAtOffsetMapsPixelsToCellsOnNineByNine() {
+        // 9x9 grid, 900x900 px: each cell is 100x100 px.
+        assertEquals(0 to 0, mazeCellAtOffset(9, 900f, 900f, 0f, 0f))
+        assertEquals(0 to 3, mazeCellAtOffset(9, 900f, 900f, 350f, 50f))
+        assertEquals(3 to 0, mazeCellAtOffset(9, 900f, 900f, 50f, 350f))
+        assertEquals(8 to 8, mazeCellAtOffset(9, 900f, 900f, 899f, 899f))
+        assertEquals(3 to 5, mazeCellAtOffset(9, 900f, 900f, 550f, 350f))
+        assertNull(mazeCellAtOffset(9, 900f, 900f, 900f, 50f))
+        assertNull(mazeCellAtOffset(9, 900f, 900f, 50f, 900f))
     }
 
     @Test
     fun drawingAlongShortestPathCompletesAnyMaze() {
         // Finger-draw the BFS shortest path for 50 random mazes (default
-        // 7x7 grid since v2.5): every step must be accepted and the path
+        // 9x9 grid since v2.8): every step must be accepted and the path
         // must end at the apple.
         for (seed in 0L until 50L) {
             val maze = makeMaze(seed)
@@ -166,6 +179,83 @@ class MazePathTest {
                 assertEquals(path, mazeExtendPath(maze, path, wall))
                 path = mazeExtendPath(maze, path, cell)
             }
+        }
+    }
+
+    @Test
+    fun pathLinePointsAreCellCentresInPathOrder() {
+        // 3x3 grid, 300x300 px: each cell is 100x100 px, so the centre of
+        // (row, column) is (column * 100 + 50, row * 100 + 50).
+        val points = mazePathLinePoints(
+            listOf(0 to 0, 0 to 1, 1 to 1, 1 to 2, 2 to 2),
+            3, 300f, 300f,
+        )
+        assertEquals(
+            listOf(
+                Offset(50f, 50f),
+                Offset(150f, 50f),
+                Offset(150f, 150f),
+                Offset(250f, 150f),
+                Offset(250f, 250f),
+            ),
+            points,
+        )
+    }
+
+    @Test
+    fun pathLinePointsEmptyForEmptyPathOrBadGrid() {
+        assertEquals(emptyList<Offset>(), mazePathLinePoints(emptyList(), 3, 300f, 300f))
+        assertEquals(
+            emptyList<Offset>(),
+            mazePathLinePoints(listOf(0 to 0), 3, 0f, 300f),
+        )
+        assertEquals(
+            emptyList<Offset>(),
+            mazePathLinePoints(listOf(0 to 0), 0, 300f, 300f),
+        )
+    }
+
+    @Test
+    fun pathLinePointsShortenWhenPathTrims() {
+        // The line follows the path: trimming the path back (dragging back)
+        // shortens the point list to the matching prefix.
+        val full = mazePathLinePoints(
+            listOf(0 to 0, 0 to 1, 1 to 1),
+            3, 300f, 300f,
+        )
+        val trimmed = mazePathLinePoints(
+            listOf(0 to 0, 0 to 1),
+            3, 300f, 300f,
+        )
+        assertEquals(3, full.size)
+        assertEquals(2, trimmed.size)
+        assertEquals(full.subList(0, 2), trimmed)
+        // A single-cell path is a single point (the start dot).
+        assertEquals(
+            listOf(Offset(50f, 50f)),
+            mazePathLinePoints(listOf(0 to 0), 3, 300f, 300f),
+        )
+    }
+
+    @Test
+    fun pathLinePointsOnNineByNine() {
+        // 9x9 grid, 900x900 px: the goal cell (8, 8) has centre (850, 850).
+        val points = mazePathLinePoints(listOf(0 to 0, 8 to 8), 9, 900f, 900f)
+        assertEquals(listOf(Offset(50f, 50f), Offset(850f, 850f)), points)
+    }
+
+    @Test
+    fun pathLinePointsFollowDrawnSolution() {
+        // For 20 random 9x9 mazes, the line points of the finger-drawn
+        // solution have one point per path cell, in order, ending at the
+        // goal cell's centre.
+        for (seed in 0L until 20L) {
+            val maze = makeMaze(seed)
+            val solution = findMazePath(maze)!!
+            val points = mazePathLinePoints(solution, maze.size, 900f, 900f)
+            assertEquals(solution.size, points.size)
+            assertEquals(Offset(850f, 850f), points.last())
+            assertEquals(Offset(50f, 50f), points.first())
         }
     }
 }
