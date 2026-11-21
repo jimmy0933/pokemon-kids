@@ -243,7 +243,6 @@ class PokemonDataTest {
         assertEquals(109, COUNT_QUESTION_COUNT)
         assertEquals(109, COLOR_SORT_QUESTION_COUNT)
         assertEquals(109, MAZE_COUNT)
-        assertEquals(109, CATCH_COUNT)
         assertEquals(109, SIZE_QUESTION_COUNT)
         // v2.3 games: 109 questions per session.
         assertEquals(109, FIND_MATCH_QUESTION_COUNT)
@@ -279,34 +278,6 @@ class PokemonDataTest {
             }
             assertTrue(found.all { it !in maze.walls })
         }
-    }
-
-    @Test
-    fun catchHoleNeverRepeatsTwiceInARow() {
-        var previous: Int? = null
-        val random = kotlin.random.Random(42L)
-        repeat(200) {
-            val hole = nextCatchHole(CATCH_HOLE_COUNT, previous, random)
-            assertTrue("hole $hole must be in range", hole in 0 until CATCH_HOLE_COUNT)
-            assertTrue("hole must not repeat twice in a row", hole != previous)
-            previous = hole
-        }
-        // A single hole has nowhere else to go.
-        assertEquals(0, nextCatchHole(1, 0, kotlin.random.Random(1L)))
-    }
-
-    @Test
-    fun nextCatchPokemonPrefersUncollectedAndAvoidsCaught() {
-        val random = kotlin.random.Random(3L)
-        // Nothing caught yet: any Pokemon may come up.
-        val first = nextCatchPokemon(ALL_POKEMON, emptySet(), emptySet(), random)
-        assertNotNull(first)
-        // With only one Pokemon left uncaught, it must be that one.
-        val almostAllCaught = (ALL_POKEMON.map { it.id } - 25).toSet()
-        val last = nextCatchPokemon(ALL_POKEMON, emptySet(), almostAllCaught, random)
-        assertEquals(25, last?.id)
-        // With everything caught, there is nothing left to pop up.
-        assertNull(nextCatchPokemon(ALL_POKEMON, emptySet(), ALL_POKEMON.map { it.id }.toSet(), random))
     }
 
     @Test
