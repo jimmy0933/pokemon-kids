@@ -302,6 +302,41 @@ class BallCatchTest {
         )
     }
 
+    // --- v2.13: ball unthrowable on the second encounter ---
+    //
+    // The v2.12 bug ("after catching the first Pokemon, the ball cannot
+    // be thrown on the second encounter"): ballPos is
+    // remember(sessionSeed, index), so a catch (index++) swaps in a fresh
+    // state object with the ball back at home — but the gesture detector
+    // was pointerInput(Unit), so it kept holding the FIRST encounter's
+    // ballPos (the catch position, where the ball had snapped onto the
+    // Pokemon). The press on the visible ball at home was checked against
+    // that stale position and ignored, and even a grab would have written
+    // to the stale state. The fix: pointerInput(sessionSeed, index), so
+    // the detector restarts with the fresh state each encounter; the
+    // restart can only happen at the Caught -> Idle transition, when no
+    // drag can be in progress. The gesture loop itself can only run on a
+    // real device, so this test pins the pure check it relies on: after a
+    // catch the ball is home, so a press on the home grabs, while a press
+    // on the OLD catch position (where the ball used to be) must not.
+
+    @Test
+    fun canGrabBallUsesFreshHomeAfterCatch() {
+        val home = ballHome(360f, 500f)
+        val oldCatchPosition = Offset(180f, 120f)
+        assertTrue(
+            "press on the ball at its post-catch home must grab",
+            canGrabBall(home, home, BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f),
+        )
+        assertFalse(
+            "press on the old catch position must not grab once the ball is home",
+            canGrabBall(
+                oldCatchPosition, home,
+                BALL_CATCH_GRAB_RADIUS_DP, 360f, 500f,
+            ),
+        )
+    }
+
     // --- v2.12: smooth motion ---
 
     @Test
