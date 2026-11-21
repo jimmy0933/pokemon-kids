@@ -310,18 +310,16 @@ fun BallCatchScreen(
     val pokemon = encounters.getOrNull(index)
     val allCaught = encounters.isEmpty()
 
-    // Say the instruction out loud whenever a new Pokemon appears.
-    LaunchedEffect(sessionSeed, index) {
-        pokemon?.let { onSpeak("出現了野生的${it.name}！按住球，往牠的方向滑！") }
-    }
-
+    // The how-to-play hint stays as on-screen text only — the game never
+    // speaks the instructions out loud (only outcomes like "打中了！" /
+    // "抓到了！" are spoken).
     val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize().navigationBarsPadding().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "丟球抓寶 ★進階",
+            text = "抓寶可夢 ★進階",
             fontSize = 32.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
