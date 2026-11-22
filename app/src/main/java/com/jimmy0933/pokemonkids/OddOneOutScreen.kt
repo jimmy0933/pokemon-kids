@@ -73,12 +73,10 @@ fun makeOddOneOutQuestions(
 /** Odd one out, for older kids: four Pokemon are shown, three share one type
  * and one does not — tap the odd one out. A wrong tap just says "再試一次"
  * with no penalty. 109 questions per session, no timer; a correct tap
- * collects the odd one out. After answering, each picture shows its type so
- * the kid learns the types. */
+ * just finishes the question. After answering, each picture shows its type
+ * so the kid learns the types. */
 @Composable
 fun OddOneOutScreen(
-    collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -91,7 +89,6 @@ fun OddOneOutScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongIds by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
     // Two rows of two cards, in the same order for the whole question.
@@ -169,8 +166,6 @@ fun OddOneOutScreen(
                                         sounds.match()
                                         sounds.celebrate()
                                         onSpeak("答對了！${pokemon.name}是${pokemon.type}屬性，和其他的不一樣！")
-                                        onCollect(pokemon.id)
-                                        if (pokemon.id !in collectedIds) newCollected++
                                         answered = true
                                     } else {
                                         sounds.flip()
@@ -212,7 +207,7 @@ fun OddOneOutScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 找完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
