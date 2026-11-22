@@ -590,15 +590,19 @@ class BallCatchTest {
         // The table above covers exactly the types in the data.
         assertEquals(expected.keys, ALL_POKEMON.map { it.type }.toSet())
         // Flying keeps the old sky gradient; water and fire differ.
-        // Compare .value.toLong(): the stub Color.value is a Long but real
-        // Compose Color.value is a ULong, so a bare .value would never
-        // equal the Long literal on a real device.
-        assertEquals(0xFF81D4FA, catchBackgroundFor("飛行").top.value.toLong())
-        assertEquals(0xFF1565C0, catchBackgroundFor("水").top.value.toLong())
-        assertEquals(0xFFBF360C, catchBackgroundFor("火").top.value.toLong())
+        // Compare via toArgb(): real Compose Color.value is an internal
+        // 64-bit packed format (sRGB colours are stored as ARGB << 32
+        // plus a colour-space tag), NOT the raw ARGB bits, so comparing
+        // .value — in any numeric form — against the ARGB literal can
+        // never match on a real device. toArgb() unpacks back to the
+        // original ARGB Int. (The stub stores raw ARGB in value, so the
+        // same assertion passes locally either way.)
+        assertEquals(0xFF81D4FA.toInt(), catchBackgroundFor("飛行").top.toArgb())
+        assertEquals(0xFF1565C0.toInt(), catchBackgroundFor("水").top.toArgb())
+        assertEquals(0xFFBF360C.toInt(), catchBackgroundFor("火").top.toArgb())
         // Unknown or empty type falls back to the normal meadow, never blank.
         assertEquals(CatchDecor.FLOWERS, catchBackgroundFor("???").decor)
         assertEquals(CatchDecor.FLOWERS, catchBackgroundFor("").decor)
-        assertEquals(0xFFC8E6C9, catchBackgroundFor("???").top.value.toLong())
+        assertEquals(0xFFC8E6C9.toInt(), catchBackgroundFor("???").top.toArgb())
     }
 }
