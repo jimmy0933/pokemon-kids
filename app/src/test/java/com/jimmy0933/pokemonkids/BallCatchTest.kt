@@ -590,12 +590,15 @@ class BallCatchTest {
         // The table above covers exactly the types in the data.
         assertEquals(expected.keys, ALL_POKEMON.map { it.type }.toSet())
         // Flying keeps the old sky gradient; water and fire differ.
-        assertEquals(0xFF81D4FA, catchBackgroundFor("飛行").top.value)
-        assertEquals(0xFF1565C0, catchBackgroundFor("水").top.value)
-        assertEquals(0xFFBF360C, catchBackgroundFor("火").top.value)
+        // Compare .value.toLong(): the stub Color.value is a Long but real
+        // Compose Color.value is a ULong, so a bare .value would never
+        // equal the Long literal on a real device.
+        assertEquals(0xFF81D4FA, catchBackgroundFor("飛行").top.value.toLong())
+        assertEquals(0xFF1565C0, catchBackgroundFor("水").top.value.toLong())
+        assertEquals(0xFFBF360C, catchBackgroundFor("火").top.value.toLong())
         // Unknown or empty type falls back to the normal meadow, never blank.
         assertEquals(CatchDecor.FLOWERS, catchBackgroundFor("???").decor)
         assertEquals(CatchDecor.FLOWERS, catchBackgroundFor("").decor)
-        assertEquals(0xFFC8E6C9, catchBackgroundFor("???").top.value)
+        assertEquals(0xFFC8E6C9, catchBackgroundFor("???").top.value.toLong())
     }
 }
