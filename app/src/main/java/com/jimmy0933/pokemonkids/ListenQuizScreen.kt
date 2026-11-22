@@ -40,11 +40,10 @@ import kotlinx.coroutines.delay
 /** Listen-and-guess: TTS speaks a Pokemon's name, the kid taps the right
  * picture out of 4. 109 questions per session (QUIZ_QUESTION_COUNT), no timer, no penalty — a wrong
  * tap just says "再試一次" and lets them try another picture. A correct tap
- * collects the Pokemon into the same Pokedex as matching. */
+ * just moves on — only the catch game adds Pokemon to the Pokedex. */
 @Composable
 fun ListenQuizScreen(
     collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -57,7 +56,6 @@ fun ListenQuizScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongIds by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
 
@@ -130,8 +128,6 @@ fun ListenQuizScreen(
                             if (option.id == question.answer.id) {
                                 sounds.match()
                                 onSpeak("答對了！${option.name}")
-                                onCollect(option.id)
-                                if (option.id !in collectedIds) newCollected++
                                 answered = true
                             } else {
                                 sounds.flip()
@@ -160,7 +156,7 @@ fun ListenQuizScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 答完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
