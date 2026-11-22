@@ -46,13 +46,9 @@ data class CountQuestion(val shown: List<Pokemon>, val count: Int)
 
 /** Count-the-Pokemon: 1-5 Pokemon pictures are shown and the kid taps the
  * matching big number button. 109 questions per session, no timer, no
- * penalty — a wrong tap just says "再試一次" and lets them try again. A
- * correct answer collects one of the shown Pokemon (an uncollected one if
- * any is still uncollected). */
+ * penalty — a wrong tap just says "再試一次" and lets them try again. */
 @Composable
 fun CountScreen(
-    collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -69,7 +65,6 @@ fun CountScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongNumbers by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
 
@@ -149,10 +144,6 @@ fun CountScreen(
                             if (number == question.count) {
                                 sounds.match()
                                 onSpeak("答對了！有 $number 隻！")
-                                val collected = question.shown.firstOrNull { it.id !in collectedIds }
-                                    ?: question.shown.first()
-                                onCollect(collected.id)
-                                if (collected.id !in collectedIds) newCollected++
                                 answered = true
                             } else {
                                 sounds.flip()
@@ -186,7 +177,7 @@ fun CountScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 數完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
