@@ -63,12 +63,10 @@ fun makeDexOrderQuestions(
 /** Order by Pokedex number: three Pokemon pictures are shown and the kid taps
  * them in ascending Dex-number order. A wrong tap just says "再試一次" with
  * no penalty. 109 questions per session, no timer; a correct full ordering
- * collects one of the shown Pokemon. After finishing, each picture shows its
+ * just finishes the question. After finishing, each picture shows its
  * Dex number so the kid learns the numbers. */
 @Composable
 fun DexOrderScreen(
-    collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -82,7 +80,6 @@ fun DexOrderScreen(
     var picked by remember(sessionSeed) { mutableStateOf(listOf<Pokemon>()) }
     var wrongIds by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
     // The three pictures are shown shuffled, so the kid has to work out the
@@ -166,10 +163,6 @@ fun DexOrderScreen(
                                 if (newPicked.size == question.options.size) {
                                     sounds.celebrate()
                                     onSpeak("排對了！好棒！")
-                                    val collected = question.options.firstOrNull { it.id !in collectedIds }
-                                        ?: question.options.first()
-                                    onCollect(collected.id)
-                                    if (collected.id !in collectedIds) newCollected++
                                     answered = true
                                 }
                             } else {
@@ -214,7 +207,7 @@ fun DexOrderScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 排完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
