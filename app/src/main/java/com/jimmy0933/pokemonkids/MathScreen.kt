@@ -87,12 +87,10 @@ fun makeMathQuestions(count: Int, seed: Long): List<MathQuestion> {
 /** Simple addition and subtraction for 8-year-olds: a big equation in digits
  * (numbers within 20), with dot counters to help count, and 3 big number
  * buttons as choices. A wrong tap just says "再試一次" with no penalty. 109
- * questions per session, no timer; a correct answer collects the helper
- * Pokemon shown with the question. */
+ * questions per session, no timer; a correct answer just finishes the
+ * question. The helper Pokemon is shown with the question. */
 @Composable
 fun MathScreen(
-    collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -105,11 +103,9 @@ fun MathScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongChoices by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
-    // One helper Pokemon per question, shown with the equation and collected
-    // when the question is answered correctly.
+    // One helper Pokemon per question, shown with the equation.
     val mascot = remember(sessionSeed, index) {
         ALL_POKEMON.shuffled(kotlin.random.Random(sessionSeed + index)).first()
     }
@@ -208,8 +204,6 @@ fun MathScreen(
                                 sounds.match()
                                 sounds.celebrate()
                                 onSpeak("答對了！${question.a} $operatorWord ${question.b} 等於 ${question.answer}！")
-                                onCollect(mascot.id)
-                                if (mascot.id !in collectedIds) newCollected++
                                 answered = true
                             } else {
                                 sounds.flip()
@@ -243,7 +237,7 @@ fun MathScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 算完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
