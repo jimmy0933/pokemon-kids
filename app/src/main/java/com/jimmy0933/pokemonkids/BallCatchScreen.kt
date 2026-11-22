@@ -57,7 +57,11 @@ import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.sin
 
-const val BALL_CATCH_ENCOUNTER_COUNT = 109
+/** One session tries to meet every Pokemon in the Pokedex: as many
+ * encounters as there are Pokemon in total (800 today), so the count stays
+ * in sync if the Pokedex ever grows. The session still ends early when the
+ * uncaught pool runs out. */
+val BALL_CATCH_ENCOUNTER_COUNT = ALL_POKEMON.size
 const val BALL_CATCH_CHANCE = 0.7
 const val BALL_CATCH_SHAKE_MS = 150L
 const val BALL_CATCH_HIT_MS = 600L
@@ -112,6 +116,105 @@ fun ballCatchEncounters(
     val uncaught = pool.filter { it.id !in excludedIds }
     if (uncaught.isEmpty()) return emptyList()
     return uncaught.shuffled(kotlin.random.Random(seed)).take(count)
+}
+
+/** Floating decor drawn over a catch background. Only Flying gets
+ * [CLOUDS] in a sky; every other type gets decor matching its own
+ * habitat (bubbles in water, embers in fire, snow in ice, ...). */
+enum class CatchDecor {
+    CLOUDS, BUBBLES, EMBERS, LEAVES, SPARKS, SNOWFLAKES, STARS, FLOWERS, SAND,
+}
+
+/** Background scene for one Pokemon type: a 3-stop vertical gradient,
+ * the ground strip at the bottom (+ its tuft colour) and the floating
+ * decor. Pure data, unit-tested. */
+data class CatchBackground(
+    val top: Color,
+    val mid: Color,
+    val bottom: Color,
+    val ground: Color,
+    val tuft: Color,
+    val decor: CatchDecor,
+)
+
+/** Background for a Pokemon type: only Flying （飛行） gets the sky with
+ * drifting clouds; every other type gets a scene matching its habitat.
+ * Any unknown or empty type falls back to the normal meadow, so the
+ * field is never blank. Pure function, unit-tested. */
+fun catchBackgroundFor(type: String): CatchBackground = when (type) {
+    "飛行" -> CatchBackground(
+        top = Color(0xFF81D4FA), mid = Color(0xFFB3E5FC), bottom = Color(0xFFDCEDC8),
+        ground = Color(0xFF81C784), tuft = Color(0xFF558B2F), decor = CatchDecor.CLOUDS,
+    )
+    "水" -> CatchBackground(
+        top = Color(0xFF1565C0), mid = Color(0xFF42A5F5), bottom = Color(0xFFB3E5FC),
+        ground = Color(0xFFD7CCC8), tuft = Color(0xFF2E7D32), decor = CatchDecor.BUBBLES,
+    )
+    "火" -> CatchBackground(
+        top = Color(0xFFBF360C), mid = Color(0xFFFF7043), bottom = Color(0xFFFFCC80),
+        ground = Color(0xFF4E342E), tuft = Color(0xFFFF6D00), decor = CatchDecor.EMBERS,
+    )
+    "草" -> CatchBackground(
+        top = Color(0xFF9CCC65), mid = Color(0xFFC5E1A5), bottom = Color(0xFFDCEDC8),
+        ground = Color(0xFF66BB6A), tuft = Color(0xFF2E7D32), decor = CatchDecor.LEAVES,
+    )
+    "電" -> CatchBackground(
+        top = Color(0xFF37474F), mid = Color(0xFF607D8B), bottom = Color(0xFFFFF59D),
+        ground = Color(0xFF455A64), tuft = Color(0xFFFFD600), decor = CatchDecor.SPARKS,
+    )
+    "地面" -> CatchBackground(
+        top = Color(0xFFFFE0B2), mid = Color(0xFFFFCC80), bottom = Color(0xFFEFEBE9),
+        ground = Color(0xFFD2A679), tuft = Color(0xFFA1887F), decor = CatchDecor.SAND,
+    )
+    "岩石" -> CatchBackground(
+        top = Color(0xFF78909C), mid = Color(0xFFB0BEC5), bottom = Color(0xFFECEFF1),
+        ground = Color(0xFF90A4AE), tuft = Color(0xFF607D8B), decor = CatchDecor.CLOUDS,
+    )
+    "冰" -> CatchBackground(
+        top = Color(0xFFE1F5FE), mid = Color(0xFFB3E5FC), bottom = Color(0xFFFFFFFF),
+        ground = Color(0xFFE3F2FD), tuft = Color(0xFF90CAF9), decor = CatchDecor.SNOWFLAKES,
+    )
+    "格鬥" -> CatchBackground(
+        top = Color(0xFFFFF3E0), mid = Color(0xFFFFE0B2), bottom = Color(0xFFFFCC80),
+        ground = Color(0xFF8D6E63), tuft = Color(0xFF5D4037), decor = CatchDecor.SPARKS,
+    )
+    "毒" -> CatchBackground(
+        top = Color(0xFF6A1B9A), mid = Color(0xFFAB47BC), bottom = Color(0xFFE1BEE7),
+        ground = Color(0xFF4A148C), tuft = Color(0xFF7CB342), decor = CatchDecor.BUBBLES,
+    )
+    "超能力" -> CatchBackground(
+        top = Color(0xFF311B92), mid = Color(0xFF7B1FA2), bottom = Color(0xFFCE93D8),
+        ground = Color(0xFF4527A0), tuft = Color(0xFFB39DDB), decor = CatchDecor.STARS,
+    )
+    "蟲" -> CatchBackground(
+        top = Color(0xFF33691E), mid = Color(0xFF689F38), bottom = Color(0xFFAED581),
+        ground = Color(0xFF558B2F), tuft = Color(0xFF33691E), decor = CatchDecor.LEAVES,
+    )
+    "幽靈" -> CatchBackground(
+        top = Color(0xFF1A237E), mid = Color(0xFF311B92), bottom = Color(0xFF5E35B1),
+        ground = Color(0xFF283593), tuft = Color(0xFFB39DDB), decor = CatchDecor.STARS,
+    )
+    "龍" -> CatchBackground(
+        top = Color(0xFF311B92), mid = Color(0xFF7E57C2), bottom = Color(0xFFFFB74D),
+        ground = Color(0xFF4527A0), tuft = Color(0xFFFF8A65), decor = CatchDecor.CLOUDS,
+    )
+    "惡" -> CatchBackground(
+        top = Color(0xFF212121), mid = Color(0xFF424242), bottom = Color(0xFF616161),
+        ground = Color(0xFF212121), tuft = Color(0xFF757575), decor = CatchDecor.STARS,
+    )
+    "鋼" -> CatchBackground(
+        top = Color(0xFF607D8B), mid = Color(0xFF90A4AE), bottom = Color(0xFFCFD8DC),
+        ground = Color(0xFF78909C), tuft = Color(0xFF455A64), decor = CatchDecor.SPARKS,
+    )
+    "妖精" -> CatchBackground(
+        top = Color(0xFFF8BBD0), mid = Color(0xFFF48FB1), bottom = Color(0xFFFCE4EC),
+        ground = Color(0xFFF06292), tuft = Color(0xFFC2185B), decor = CatchDecor.FLOWERS,
+    )
+    // 一般 and anything unknown: a pale meadow with flowers.
+    else -> CatchBackground(
+        top = Color(0xFFC8E6C9), mid = Color(0xFFDCEDC8), bottom = Color(0xFFF1F8E9),
+        ground = Color(0xFF81C784), tuft = Color(0xFF558B2F), decor = CatchDecor.FLOWERS,
+    )
 }
 
 /** Roll the catch: [chance] (0.7) to catch on each hit. Pure function,
@@ -570,8 +673,8 @@ fun PokeBallIcon(modifier: Modifier = Modifier) {
  * break-out means throwing again at the same Pokemon. A miss just means
  * throwing again — unlimited balls, the Pokemon never flees, no timer, no
  * penalty. Encounters come only from the uncaught pool, so a Pokemon
- * already in the Pokedex never appears again. 109 encounters per session
- * (fewer if the uncaught pool runs out). */
+ * already in the Pokedex never appears again. One encounter per Pokemon in
+ * the Pokedex per session (fewer if the uncaught pool runs out). */
 @Composable
 fun BallCatchScreen(
     collectedIds: Set<Int>,
@@ -934,15 +1037,21 @@ fun BallCatchScreen(
                     0f
                 }
 
+                // The scene matches the wild Pokemon's type: only Flying
+                // gets the sky; every other type gets its own habitat.
+                // Recomputed from the current Pokemon on every encounter
+                // (index change), so the background switches with it.
+                val background = catchBackgroundFor(pokemon.type)
+
                 Box(
                     modifier = Modifier.fillMaxSize()
                         .clip(RoundedCornerShape(20.dp))
                         .background(
                             Brush.verticalGradient(
                                 listOf(
-                                    Color(0xFF81D4FA),
-                                    Color(0xFFB3E5FC),
-                                    Color(0xFFDCEDC8),
+                                    background.top,
+                                    background.mid,
+                                    background.bottom,
                                 ),
                             ),
                             RoundedCornerShape(20.dp),
@@ -1044,61 +1153,303 @@ fun BallCatchScreen(
                             }
                         },
                 ) {
-                    // Scene: sky, clouds, grass, shadows, trail, aim
+                    // Scene: type-matched background, shadows, trail, aim
                     // dots and all effect particles, drawn back to front
                     // in one Canvas (positions are dp, scaled by density).
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         val wPx = size.width
                         val hPx = size.height
                         val fieldW = wPx / density
-                        // 1. Drifting soft clouds.
-                        val cloudDefs = listOf(
-                            Triple(0.15f, 46f, 0f),
-                            Triple(0.55f, 96f, 120f),
-                            Triple(0.85f, 66f, 240f),
-                        )
-                        for ((baseX, baseY, phaseOff) in cloudDefs) {
-                            val cx = ((baseX * fieldW + cloudDrift + phaseOff) %
-                                (fieldW + BALL_CATCH_CLOUD_WRAP_DP) - 180f) * density
-                            val cy = baseY * density
-                            drawCircle(
-                                color = Color.White, radius = 26f * density,
-                                center = Offset(cx, cy), alpha = 0.85f,
-                            )
-                            drawCircle(
-                                color = Color.White, radius = 20f * density,
-                                center = Offset(cx + 22f * density, cy + 6f * density),
-                                alpha = 0.85f,
-                            )
-                            drawCircle(
-                                color = Color.White, radius = 18f * density,
-                                center = Offset(cx - 22f * density, cy + 8f * density),
-                                alpha = 0.85f,
-                            )
+                        val fieldH = hPx / density
+                        // 1. Floating decor matching the Pokemon's type:
+                        // only Flying gets drifting clouds in a sky; the
+                        // rest get their own habitat's drifting elements.
+                        when (background.decor) {
+                            CatchDecor.CLOUDS -> {
+                                val cloudDefs = listOf(
+                                    Triple(0.15f, 46f, 0f),
+                                    Triple(0.55f, 96f, 120f),
+                                    Triple(0.85f, 66f, 240f),
+                                )
+                                for ((baseX, baseY, phaseOff) in cloudDefs) {
+                                    val cx = ((baseX * fieldW + cloudDrift + phaseOff) %
+                                        (fieldW + BALL_CATCH_CLOUD_WRAP_DP) - 180f) * density
+                                    val cy = baseY * density
+                                    drawCircle(
+                                        color = Color.White, radius = 26f * density,
+                                        center = Offset(cx, cy), alpha = 0.85f,
+                                    )
+                                    drawCircle(
+                                        color = Color.White, radius = 20f * density,
+                                        center = Offset(cx + 22f * density, cy + 6f * density),
+                                        alpha = 0.85f,
+                                    )
+                                    drawCircle(
+                                        color = Color.White, radius = 18f * density,
+                                        center = Offset(cx - 22f * density, cy + 8f * density),
+                                        alpha = 0.85f,
+                                    )
+                                }
+                            }
+                            CatchDecor.BUBBLES -> {
+                                // Rising bubbles (water, poison swamp).
+                                val bubbleDefs = listOf(
+                                    Triple(0.12f, 0f, 8f),
+                                    Triple(0.30f, 70f, 12f),
+                                    Triple(0.50f, 140f, 9f),
+                                    Triple(0.70f, 210f, 14f),
+                                    Triple(0.88f, 280f, 10f),
+                                )
+                                for ((fx, phaseOff, r) in bubbleDefs) {
+                                    val risen = (clockSeconds * 20f + phaseOff) % fieldH
+                                    val y = (fieldH - risen) * density
+                                    drawCircle(
+                                        color = Color.White, radius = r * density,
+                                        center = Offset(fx * wPx, y), alpha = 0.45f,
+                                    )
+                                }
+                            }
+                            CatchDecor.EMBERS -> {
+                                // Rising embers (fire): orange, red and
+                                // yellow sparks flickering as they climb.
+                                val emberColors = listOf(
+                                    Color(0xFFFF6D00),
+                                    Color(0xFFFF5722),
+                                    Color(0xFFFFD600),
+                                )
+                                val emberDefs = listOf(
+                                    Triple(0.10f, 0f, 5f),
+                                    Triple(0.25f, 45f, 7f),
+                                    Triple(0.42f, 90f, 4f),
+                                    Triple(0.60f, 135f, 6f),
+                                    Triple(0.78f, 180f, 5f),
+                                    Triple(0.92f, 225f, 7f),
+                                )
+                                emberDefs.forEachIndexed { i, (fx, phaseOff, r) ->
+                                    val risen = (clockSeconds * 28f + phaseOff) % fieldH
+                                    val y = (fieldH - risen) * density
+                                    val flicker = 0.45f + 0.35f *
+                                        sin(clockSeconds * 3f + phaseOff)
+                                    drawCircle(
+                                        color = emberColors[i % emberColors.size],
+                                        radius = r * density,
+                                        center = Offset(fx * wPx, y), alpha = flicker,
+                                    )
+                                }
+                            }
+                            CatchDecor.LEAVES -> {
+                                // Leaves drifting sideways (grass, bug
+                                // forest), bobbing gently as they go.
+                                val leafDefs = listOf(
+                                    Triple(0.10f, 60f, 0f),
+                                    Triple(0.30f, 110f, 90f),
+                                    Triple(0.55f, 70f, 180f),
+                                    Triple(0.75f, 130f, 270f),
+                                    Triple(0.90f, 90f, 45f),
+                                )
+                                leafDefs.forEachIndexed { i, (fx, baseY, phaseOff) ->
+                                    val x = ((fx * fieldW + cloudDrift * 0.7f + phaseOff) %
+                                        (fieldW + 60f) - 30f) * density
+                                    val y = (baseY + 6f * sin(clockSeconds + phaseOff)) * density
+                                    drawOval(
+                                        color = if (i % 2 == 0) {
+                                            Color(0xFF66BB6A)
+                                        } else {
+                                            Color(0xFF43A047)
+                                        },
+                                        topLeft = Offset(x - 8f * density, y - 4f * density),
+                                        size = Size(16f * density, 8f * density),
+                                        alpha = 0.85f,
+                                    )
+                                }
+                            }
+                            CatchDecor.SPARKS -> {
+                                // Twinkling sparks (electric, fighting,
+                                // steel): battle energy in the air.
+                                val sparkDefs = listOf(
+                                    Triple(0.12f, 60f, 0f),
+                                    Triple(0.28f, 120f, 70f),
+                                    Triple(0.45f, 70f, 140f),
+                                    Triple(0.62f, 140f, 210f),
+                                    Triple(0.80f, 80f, 280f),
+                                    Triple(0.92f, 130f, 350f),
+                                )
+                                sparkDefs.forEachIndexed { i, (fx, baseY, phaseOff) ->
+                                    val twinkle = 0.35f + 0.65f *
+                                        (0.5f + 0.5f * sin(clockSeconds * 3f + phaseOff))
+                                    drawCircle(
+                                        color = if (i % 2 == 0) {
+                                            Color(0xFFFFD600)
+                                        } else {
+                                            Color.White
+                                        },
+                                        radius = (if (i % 2 == 0) 5f else 4f) * density,
+                                        center = Offset(fx * wPx, baseY * density),
+                                        alpha = twinkle,
+                                    )
+                                }
+                            }
+                            CatchDecor.SNOWFLAKES -> {
+                                // Snowflakes falling gently (ice), swaying
+                                // side to side as they come down.
+                                val flakeDefs = listOf(
+                                    Triple(0.10f, 0f, 0f),
+                                    Triple(0.26f, 40f, 60f),
+                                    Triple(0.44f, 80f, 120f),
+                                    Triple(0.60f, 20f, 180f),
+                                    Triple(0.78f, 60f, 240f),
+                                    Triple(0.92f, 100f, 300f),
+                                )
+                                for ((fx, baseY, phaseOff) in flakeDefs) {
+                                    val fallen = (baseY + clockSeconds * 16f + phaseOff) % fieldH
+                                    val x = (fx * fieldW +
+                                        8f * sin(clockSeconds * 0.8f + phaseOff)) * density
+                                    drawCircle(
+                                        color = Color.White, radius = 6f * density,
+                                        center = Offset(x, fallen * density), alpha = 0.85f,
+                                    )
+                                }
+                            }
+                            CatchDecor.STARS -> {
+                                // Twinkling stars (psychic, ghost, dark):
+                                // spirit lights in a night sky.
+                                val starDefs = listOf(
+                                    Triple(0.08f, 50f, 0f),
+                                    Triple(0.20f, 110f, 60f),
+                                    Triple(0.34f, 60f, 120f),
+                                    Triple(0.48f, 130f, 180f),
+                                    Triple(0.62f, 55f, 240f),
+                                    Triple(0.76f, 115f, 300f),
+                                    Triple(0.88f, 65f, 30f),
+                                    Triple(0.95f, 140f, 200f),
+                                )
+                                starDefs.forEachIndexed { i, (fx, baseY, phaseOff) ->
+                                    val twinkle = 0.35f + 0.65f *
+                                        (0.5f + 0.5f * sin(clockSeconds * 2f + phaseOff))
+                                    drawCircle(
+                                        color = if (i % 3 == 0) {
+                                            Color(0xFFFFD600)
+                                        } else {
+                                            Color.White
+                                        },
+                                        radius = (if (i % 3 == 0) 5f else 3.5f) * density,
+                                        center = Offset(fx * wPx, baseY * density),
+                                        alpha = twinkle,
+                                    )
+                                }
+                                // Two bright 4-point sparkles.
+                                for ((sx, sy) in listOf(0.25f to 90f, 0.70f to 60f)) {
+                                    val cx = sx * wPx
+                                    val cy = sy * density
+                                    val arm = 8f * density
+                                    drawLine(
+                                        color = Color.White,
+                                        start = Offset(cx - arm, cy),
+                                        end = Offset(cx + arm, cy),
+                                        strokeWidth = 2f * density, cap = StrokeCap.Round,
+                                    )
+                                    drawLine(
+                                        color = Color.White,
+                                        start = Offset(cx, cy - arm),
+                                        end = Offset(cx, cy + arm),
+                                        strokeWidth = 2f * density, cap = StrokeCap.Round,
+                                    )
+                                }
+                            }
+                            CatchDecor.FLOWERS -> {
+                                // Little flowers in the meadow (normal,
+                                // fairy garden): pink, white and yellow
+                                // blooms standing still.
+                                val flowerDefs = listOf(
+                                    Triple(0.10f, 70f, 0),
+                                    Triple(0.30f, 120f, 1),
+                                    Triple(0.55f, 80f, 2),
+                                    Triple(0.75f, 130f, 0),
+                                    Triple(0.90f, 90f, 1),
+                                )
+                                val petalColors = listOf(
+                                    Color(0xFFF48FB1),
+                                    Color.White,
+                                    Color(0xFFFFD600),
+                                )
+                                for ((fx, baseY, colorIndex) in flowerDefs) {
+                                    val cx = fx * wPx
+                                    val cy = baseY * density
+                                    val petal = petalColors[colorIndex % petalColors.size]
+                                    val r = 6f * density
+                                    drawCircle(
+                                        color = petal, radius = r,
+                                        center = Offset(cx, cy - r), alpha = 0.9f,
+                                    )
+                                    drawCircle(
+                                        color = petal, radius = r,
+                                        center = Offset(cx, cy + r), alpha = 0.9f,
+                                    )
+                                    drawCircle(
+                                        color = petal, radius = r,
+                                        center = Offset(cx - r, cy), alpha = 0.9f,
+                                    )
+                                    drawCircle(
+                                        color = petal, radius = r,
+                                        center = Offset(cx + r, cy), alpha = 0.9f,
+                                    )
+                                    drawCircle(
+                                        color = Color(0xFFFF9800), radius = 4f * density,
+                                        center = Offset(cx, cy), alpha = 0.95f,
+                                    )
+                                }
+                            }
+                            CatchDecor.SAND -> {
+                                // Sand blowing low over the dunes (ground).
+                                val sandDefs = listOf(
+                                    Triple(0.10f, 0.60f, 0f),
+                                    Triple(0.28f, 0.72f, 50f),
+                                    Triple(0.45f, 0.65f, 100f),
+                                    Triple(0.62f, 0.80f, 150f),
+                                    Triple(0.80f, 0.68f, 200f),
+                                    Triple(0.92f, 0.78f, 250f),
+                                )
+                                sandDefs.forEachIndexed { i, (fx, fy, phaseOff) ->
+                                    val x = ((fx * fieldW + cloudDrift * 1.5f + phaseOff) %
+                                        (fieldW + 40f) - 20f) * density
+                                    drawCircle(
+                                        color = if (i % 2 == 0) {
+                                            Color(0xFFD7CCC8)
+                                        } else {
+                                            Color(0xFFBCAAA4)
+                                        },
+                                        radius = (if (i % 2 == 0) 7f else 5f) * density,
+                                        center = Offset(x, fy * hPx), alpha = 0.55f,
+                                    )
+                                }
+                            }
                         }
-                        // 2. Grass strip at the bottom, with tufts.
+                        // 2. Ground strip at the bottom, with tufts.
+                        // Colours come from the type background (grass for
+                        // meadow types, sand for the desert and seabed,
+                        // dark rock for fire, snow for ice, ...).
                         val grassTop = hPx - BALL_CATCH_GRASS_HEIGHT_DP * density
                         drawRect(
-                            color = Color(0xFF81C784),
+                            color = background.ground,
                             topLeft = Offset(0f, grassTop),
                             size = Size(wPx, BALL_CATCH_GRASS_HEIGHT_DP * density),
                         )
                         for (fx in listOf(0.08f, 0.22f, 0.38f, 0.55f, 0.72f, 0.88f)) {
                             val bx = fx * wPx
                             drawLine(
-                                color = Color(0xFF558B2F),
+                                color = background.tuft,
                                 start = Offset(bx, grassTop),
                                 end = Offset(bx - 4f * density, grassTop - 10f * density),
                                 strokeWidth = 3f * density, cap = StrokeCap.Round,
                             )
                             drawLine(
-                                color = Color(0xFF558B2F),
+                                color = background.tuft,
                                 start = Offset(bx, grassTop),
                                 end = Offset(bx, grassTop - 12f * density),
                                 strokeWidth = 3f * density, cap = StrokeCap.Round,
                             )
                             drawLine(
-                                color = Color(0xFF558B2F),
+                                color = background.tuft,
                                 start = Offset(bx, grassTop),
                                 end = Offset(bx + 4f * density, grassTop - 10f * density),
                                 strokeWidth = 3f * density, cap = StrokeCap.Round,
