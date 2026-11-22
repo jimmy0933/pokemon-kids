@@ -46,7 +46,6 @@ fun drawableId(context: android.content.Context, name: String): Int =
 @Composable
 fun GameScreen(
     roundIndex: Int,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -70,7 +69,6 @@ fun GameScreen(
                 sounds.match()
                 onSpeak(pokemon.name)
                 matched = matched + pokemon.id
-                onCollect(pokemon.id)
                 flipped = emptySet()
             } else {
                 locked = true
@@ -153,8 +151,8 @@ fun GameScreen(
     if (showComplete) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("🎉 收集到 $roundSize 隻新朋友！", fontSize = 26.sp) },
-            text = { Text("這一關的寶可夢都進圖鑑了，好棒！", fontSize = 20.sp) },
+            title = { Text("🎉 第 ${roundIndex + 1} 關完成了！", fontSize = 26.sp) },
+            text = { Text("這一關全部配對成功，好棒！", fontSize = 20.sp) },
             confirmButton = {
                 if (onNextRound != null) {
                     TextButton(onClick = onNextRound) { Text("下一關 ➜", fontSize = 22.sp) }
