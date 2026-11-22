@@ -44,11 +44,10 @@ const val FIND_IT_OPTION_COUNT = 12
 /** Find-it: the target Pokemon is shown big at the top, and the kid taps the
  * matching picture out of 12 below. 109 questions per session, no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
- * correct tap collects the Pokemon into the same Pokedex as matching. */
+ * correct tap just moves on — only the catch game adds Pokemon to the Pokedex. */
 @Composable
 fun FindItScreen(
     collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -61,7 +60,6 @@ fun FindItScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongIds by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
 
@@ -135,8 +133,6 @@ fun FindItScreen(
                             if (option.id == question.answer.id) {
                                 sounds.match()
                                 onSpeak("答對了！${option.name}")
-                                onCollect(option.id)
-                                if (option.id !in collectedIds) newCollected++
                                 answered = true
                             } else {
                                 sounds.flip()
@@ -165,7 +161,7 @@ fun FindItScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 找完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
