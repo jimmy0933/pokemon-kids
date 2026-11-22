@@ -63,13 +63,11 @@ fun makeWeightQuestions(
 
 /** Guess the heaviest: three Pokemon pictures are shown and the kid taps the
  * heaviest one. A wrong tap just says "再試一次" with no penalty. 109
- * questions per session, no timer; a correct tap collects the heaviest
- * Pokemon. After answering, each picture shows its weight so the kid learns
+ * questions per session, no timer; a correct tap just finishes the
+ * question. After answering, each picture shows its weight so the kid learns
  * heavy and light. */
 @Composable
 fun WeightScreen(
-    collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -82,7 +80,6 @@ fun WeightScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongIds by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
     // The three pictures are shown shuffled, so the kid has to work out which
@@ -154,8 +151,6 @@ fun WeightScreen(
                                 sounds.match()
                                 sounds.celebrate()
                                 onSpeak("答對了！${pokemon.name}最重！")
-                                onCollect(pokemon.id)
-                                if (pokemon.id !in collectedIds) newCollected++
                                 answered = true
                             } else {
                                 sounds.flip()
@@ -195,7 +190,7 @@ fun WeightScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 比完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
