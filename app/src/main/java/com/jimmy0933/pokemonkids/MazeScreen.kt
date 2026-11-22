@@ -205,11 +205,10 @@ fun mazePathLinePoints(
  * 「重畫」. The cells themselves keep their colours (path cells look the
  * same as unvisited cells); the Pokemon sitting at the path's end shows
  * how far the kid has got. 109 mazes per session, no timer; finishing a
- * maze collects the Pokemon shown. */
+ * maze just shows the Pokemon at the path's end. */
 @Composable
 fun MazeScreen(
     collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -226,7 +225,6 @@ fun MazeScreen(
         (uncollected + collected).take(MAZE_COUNT)
     }
     var mazeIndex by remember(sessionSeed) { mutableStateOf(0) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val maze = mazes.getOrNull(mazeIndex)
     val pokemon = mazePokemon.getOrNull(mazeIndex)
@@ -265,8 +263,6 @@ fun MazeScreen(
             sounds.celebrate()
             pokemon?.let {
                 onSpeak("到了！是${it.name}！")
-                onCollect(it.id)
-                if (it.id !in collectedIds) newCollected++
             }
         }
     }
@@ -410,7 +406,7 @@ fun MazeScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 走完 ${mazes.size} 個迷宮了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
