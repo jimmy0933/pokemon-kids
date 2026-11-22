@@ -54,12 +54,11 @@ private fun shuffledPieceOrder(seed: Long): List<Int> {
 
 /** Picture puzzle: one Pokemon picture is split into 4 pieces (2x2) and
  * shuffled. The kid taps two pieces to swap them; when the picture is whole
- * again, the Pokemon is collected. One puzzle at a time, 30 puzzles per
+ * again, the puzzle is done. One puzzle at a time, 30 puzzles per
  * session, no timer, no penalty. */
 @Composable
 fun PuzzleScreen(
     collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -73,7 +72,6 @@ fun PuzzleScreen(
         (uncollected + collected).take(PUZZLE_COUNT)
     }
     var puzzleIndex by remember(sessionSeed) { mutableStateOf(0) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val pokemon = puzzles.getOrNull(puzzleIndex)
 
@@ -172,8 +170,6 @@ fun PuzzleScreen(
                                     solved = true
                                     sounds.celebrate()
                                     onSpeak("拼好了！是${pokemon.name}！")
-                                    onCollect(pokemon.id)
-                                    if (pokemon.id !in collectedIds) newCollected++
                                 }
                             }
                         },
@@ -189,7 +185,7 @@ fun PuzzleScreen(
             }
         } else if (pokemon != null) {
             // Artwork could not be decoded: show the whole picture and let
-            // the kid move on without collecting.
+            // the kid move on.
             Image(
                 painter = painterResource(drawableId(context, pokemon.drawable)),
                 contentDescription = pokemon.name,
@@ -219,7 +215,7 @@ fun PuzzleScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 拼好 ${puzzles.size} 張拼圖了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
