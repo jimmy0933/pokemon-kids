@@ -15,33 +15,33 @@ class BallCatchTest {
     @Test
     fun encountersComeOnlyFromUncaughtPool() {
         val collected = setOf(1, 2, 3, 25, 150)
-        val encounters = ballCatchEncounters(ALL_POKEMON, collected, 109, seed = 31L)
-        assertEquals(109, encounters.size)
+        val encounters = ballCatchEncounters(ALL_POKEMON, collected, BALL_CATCH_ENCOUNTER_COUNT, seed = 31L)
+        assertEquals(ALL_POKEMON.size - collected.size, encounters.size)
         assertTrue("no encounter may already be collected", encounters.none { it.id in collected })
-        assertEquals("encounters must be distinct", 109, encounters.map { it.id }.toSet().size)
+        assertEquals("encounters must be distinct", ALL_POKEMON.size - collected.size, encounters.map { it.id }.toSet().size)
         // Same seed, same encounters.
         assertEquals(
             encounters.map { it.id },
-            ballCatchEncounters(ALL_POKEMON, collected, 109, seed = 31L).map { it.id },
+            ballCatchEncounters(ALL_POKEMON, collected, BALL_CATCH_ENCOUNTER_COUNT, seed = 31L).map { it.id },
         )
     }
 
     @Test
     fun caughtPokemonNeverReappearInLaterSessions() {
         // Session 1: catch the first 10 encounters.
-        val first = ballCatchEncounters(ALL_POKEMON, emptySet(), 109, seed = 32L)
+        val first = ballCatchEncounters(ALL_POKEMON, emptySet(), BALL_CATCH_ENCOUNTER_COUNT, seed = 32L)
         val caught = first.take(10).map { it.id }.toSet()
         // Session 2: the caught ones are excluded from the pool.
-        val second = ballCatchEncounters(ALL_POKEMON, caught, 109, seed = 33L)
+        val second = ballCatchEncounters(ALL_POKEMON, caught, BALL_CATCH_ENCOUNTER_COUNT, seed = 33L)
         assertTrue("caught Pokemon must never reappear", second.none { it.id in caught })
-        assertEquals(109, second.size)
+        assertEquals(ALL_POKEMON.size - caught.size, second.size)
     }
 
     @Test
     fun encountersCapAtUncaughtPoolSize() {
         // Only 5 uncaught Pokemon left: the session has 5 encounters.
         val collected = ALL_POKEMON.drop(5).map { it.id }.toSet()
-        val encounters = ballCatchEncounters(ALL_POKEMON, collected, 109, seed = 34L)
+        val encounters = ballCatchEncounters(ALL_POKEMON, collected, BALL_CATCH_ENCOUNTER_COUNT, seed = 34L)
         assertEquals(5, encounters.size)
         assertEquals(
             ALL_POKEMON.take(5).map { it.id }.toSet(),
@@ -52,7 +52,38 @@ class BallCatchTest {
     @Test
     fun emptyPoolGivesNoEncounters() {
         val collected = ALL_POKEMON.map { it.id }.toSet()
-        assertTrue(ballCatchEncounters(ALL_POKEMON, collected, 109, seed = 35L).isEmpty())
+        assertTrue(ballCatchEncounters(ALL_POKEMON, collected, BALL_CATCH_ENCOUNTER_COUNT, seed = 35L).isEmpty())
+    }
+
+    // --- v2.14: one session covers every Pokemon, and only the catch game collects ---
+    //
+    // The catch session must offer as many encounters as there are Pokemon
+    // in total, so the count is BALL_CATCH_ENCOUNTER_COUNT = ALL_POKEMON.size
+    // (800 today) rather than a fixed number. And since v2.14 only
+    // BallCatchScreen has an onCollect parameter: every other screen's
+    // onCollect parameter and its DataStore wiring in MainActivity were
+    // removed, so no other game can add to the Pokedex. That is enforced by
+    // the compiler (those screens no longer accept a collect callback), not
+    // by a runtime check — and the pure question helpers the other games use
+    // (makeQuizQuestions, makeSizeQuestions, ...) never touch the store, so
+    // there is no implicit collection path left. The composable behaviour
+    // itself can only run on a real device, so this section pins the pure
+    // logic the rule relies on: a full session covers the whole Pokedex.
+
+    @Test
+    fun sessionCoversEveryPokemon() {
+        assertEquals(ALL_POKEMON.size, BALL_CATCH_ENCOUNTER_COUNT)
+        val encounters = ballCatchEncounters(ALL_POKEMON, emptySet(), BALL_CATCH_ENCOUNTER_COUNT, seed = 38L)
+        assertEquals("a fresh collection must meet every Pokemon", ALL_POKEMON.size, encounters.size)
+        assertEquals(
+            ALL_POKEMON.map { it.id }.toSet(),
+            encounters.map { it.id }.toSet(),
+        )
+        // With some already caught, the session is shorter by exactly that many.
+        val caught = ALL_POKEMON.take(7).map { it.id }.toSet()
+        val fewer = ballCatchEncounters(ALL_POKEMON, caught, BALL_CATCH_ENCOUNTER_COUNT, seed = 39L)
+        assertEquals(ALL_POKEMON.size - 7, fewer.size)
+        assertTrue("caught Pokemon must never reappear", fewer.none { it.id in caught })
     }
 
     @Test
@@ -75,7 +106,7 @@ class BallCatchTest {
 
     @Test
     fun ballCatchSessionCounts() {
-        assertEquals(109, BALL_CATCH_ENCOUNTER_COUNT)
+        assertEquals(ALL_POKEMON.size, BALL_CATCH_ENCOUNTER_COUNT)
         assertEquals(0.7, BALL_CATCH_CHANCE, 0.001)
     }
 
@@ -245,8 +276,9 @@ class BallCatchTest {
     // dropped the in-progress gesture — when the field size settled after
     // the first layout, exactly when a kid grabs the ball for the first
     // time; (2) the grab check read ballPos, which starts null and is
-    // only set by a LaunchedEffect. The fix: a stable pointerInput(Unit)
-    // key with the size from onSizeChanged, a grab on the press itself
+    // only set by a LaunchedEffect. The fix (v2.12, refined in v2.13):
+    // pointerInput keyed on (sessionSeed, index) — never the layout size —
+    // with the size from onSizeChanged, a grab on the press itself
     // (not after the touch slop), and canGrabBall falling back to the
     // ball's home when it has not been placed yet. The gesture loop
     // itself can only run on a real device, so these tests cover the
@@ -524,5 +556,46 @@ class BallCatchTest {
         assertTrue("progress must move toward the target", step > 0f && step < 1f)
         assertEquals(1f, smoothProgress(1f, 1f, 0.1f, 6f), 0.001f)
         assertTrue("progress must never overshoot", smoothProgress(0.9f, 1f, 1f, 6f) <= 1f)
+    }
+
+    // --- v2.14: type-matched catch backgrounds ---
+
+    @Test
+    fun catchBackgroundMatchesPokemonType() {
+        // Every type in the Pokedex gets its own scene; only Flying
+        // gets the sky with drifting clouds.
+        val expected = mapOf(
+            "飛行" to CatchDecor.CLOUDS,
+            "水" to CatchDecor.BUBBLES,
+            "火" to CatchDecor.EMBERS,
+            "草" to CatchDecor.LEAVES,
+            "電" to CatchDecor.SPARKS,
+            "地面" to CatchDecor.SAND,
+            "岩石" to CatchDecor.CLOUDS,
+            "冰" to CatchDecor.SNOWFLAKES,
+            "格鬥" to CatchDecor.SPARKS,
+            "毒" to CatchDecor.BUBBLES,
+            "超能力" to CatchDecor.STARS,
+            "蟲" to CatchDecor.LEAVES,
+            "幽靈" to CatchDecor.STARS,
+            "龍" to CatchDecor.CLOUDS,
+            "惡" to CatchDecor.STARS,
+            "鋼" to CatchDecor.SPARKS,
+            "妖精" to CatchDecor.FLOWERS,
+            "一般" to CatchDecor.FLOWERS,
+        )
+        for ((type, decor) in expected) {
+            assertEquals("type $type", decor, catchBackgroundFor(type).decor)
+        }
+        // The table above covers exactly the types in the data.
+        assertEquals(expected.keys, ALL_POKEMON.map { it.type }.toSet())
+        // Flying keeps the old sky gradient; water and fire differ.
+        assertEquals(0xFF81D4FA, catchBackgroundFor("飛行").top.value)
+        assertEquals(0xFF1565C0, catchBackgroundFor("水").top.value)
+        assertEquals(0xFFBF360C, catchBackgroundFor("火").top.value)
+        // Unknown or empty type falls back to the normal meadow, never blank.
+        assertEquals(CatchDecor.FLOWERS, catchBackgroundFor("???").decor)
+        assertEquals(CatchDecor.FLOWERS, catchBackgroundFor("").decor)
+        assertEquals(0xFFC8E6C9, catchBackgroundFor("???").top.value)
     }
 }
