@@ -56,13 +56,11 @@ fun makeMemoryBoards(
 
 /** Memory / concentration, for older kids: 12 cards face down (6 pairs of
  * Pokemon pictures). Tap two cards to flip them; a matching pair stays face
- * up and the Pokemon is collected, a non-matching pair flips back after a
- * short moment. No timer, no fail penalty. One board takes much longer than
- * a single quiz question, so a session is 10 boards (not 109). */
+ * up, a non-matching pair flips back after a short moment. No timer, no fail
+ * penalty. One board takes much longer than a single quiz question, so a
+ * session is 10 boards (not 109). */
 @Composable
 fun MemoryScreen(
-    collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -76,7 +74,6 @@ fun MemoryScreen(
     var flipped by remember(sessionSeed, boardIndex) { mutableStateOf(listOf<Int>()) }
     var matched by remember(sessionSeed, boardIndex) { mutableStateOf(setOf<Int>()) }
     var busy by remember(sessionSeed, boardIndex) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val deck = boards.getOrNull(boardIndex) ?: emptyList()
 
@@ -94,8 +91,6 @@ fun MemoryScreen(
             onSpeak("配對成功！${first.name}")
             val newMatched = matched + first.id
             matched = newMatched
-            onCollect(first.id)
-            if (first.id !in collectedIds) newCollected++
             if (newMatched.size == MEMORY_PAIRS_PER_BOARD) {
                 sounds.celebrate()
                 onSpeak("這一盤都找到了！好棒！")
@@ -202,7 +197,7 @@ fun MemoryScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 翻完 ${boards.size} 盤了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
