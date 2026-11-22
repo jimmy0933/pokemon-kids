@@ -39,11 +39,10 @@ import kotlinx.coroutines.delay
 /** Silhouette guess: one Pokemon is shown as a black silhouette and the kid
  * taps the matching picture out of 3. 109 questions per session (QUIZ_QUESTION_COUNT), no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
- * correct tap collects the Pokemon into the same Pokedex as matching. */
+ * correct tap just moves on — only the catch game adds Pokemon to the Pokedex. */
 @Composable
 fun SilhouetteScreen(
     collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -56,7 +55,6 @@ fun SilhouetteScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongIds by remember(sessionSeed) { mutableStateOf(setOf<Int>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val question = questions.getOrNull(index)
 
@@ -124,8 +122,6 @@ fun SilhouetteScreen(
                             if (option.id == question.answer.id) {
                                 sounds.match()
                                 onSpeak("答對了！${option.name}")
-                                onCollect(option.id)
-                                if (option.id !in collectedIds) newCollected++
                                 answered = true
                             } else {
                                 sounds.flip()
@@ -154,7 +150,7 @@ fun SilhouetteScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 答完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
