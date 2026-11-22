@@ -144,7 +144,6 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         )
         is Screen.Game -> GameScreen(
             roundIndex = current.roundIndex,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Rounds },
@@ -155,7 +154,6 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         )
         Screen.ListenQuiz -> ListenQuizScreen(
             collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
@@ -163,7 +161,6 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         )
         Screen.Silhouette -> SilhouetteScreen(
             collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
@@ -176,7 +173,6 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         )
         Screen.FindIt -> FindItScreen(
             collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
@@ -184,15 +180,12 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         )
         Screen.Puzzle -> PuzzleScreen(
             collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.Count -> CountScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
@@ -205,8 +198,6 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
             onBack = { screen = Screen.Home },
         )
         Screen.ColorSort -> ColorSortScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
@@ -214,39 +205,30 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         )
         Screen.Maze -> MazeScreen(
             collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.Size -> SizeScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.FindMatch -> FindMatchScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.DexOrder -> DexOrderScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.Weight -> WeightScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
@@ -254,39 +236,30 @@ fun PokemonKidsApp(store: CollectionStore, onSpeak: (String) -> Unit, sounds: So
         )
         Screen.ShadowMatch -> ShadowMatchScreen(
             collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.Memory -> MemoryScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.EvoOrder -> EvoOrderScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.Math -> MathScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
             onOpenCollection = { screen = Screen.Collection },
         )
         Screen.OddOneOut -> OddOneOutScreen(
-            collectedIds = collected,
-            onCollect = { id -> scope.launch { store.addCollected(listOf(id)) } },
             onSpeak = onSpeak,
             sounds = sounds,
             onBack = { screen = Screen.Home },
@@ -462,7 +435,7 @@ fun HomeScreen(
             shape = RoundedCornerShape(24.dp),
         ) { Text("🎯 抓寶可夢（進階）", fontSize = 32.sp) }
         Spacer(modifier = Modifier.height(24.dp))
-        Text("給 4 歲小朋友玩：看圖配對，收集寶可夢", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
+        Text("給 4 歲小朋友玩：看圖配對玩遊戲，抓寶可夢來收集圖鑑", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
         Text("★ 進階玩法難一點，適合 8 歲小朋友", fontSize = 18.sp, textAlign = TextAlign.Center, color = Color.Gray)
     }
 }
