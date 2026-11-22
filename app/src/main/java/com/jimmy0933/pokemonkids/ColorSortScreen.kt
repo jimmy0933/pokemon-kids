@@ -152,12 +152,10 @@ fun colorSortQuestions(count: Int, seed: Long): List<Pokemon> {
 /** Colour sorting: a Pokemon is shown and the kid taps which colour box it
  * belongs to (紅 / 藍 / 黃 / 綠). 109 questions per session, no timer, no
  * penalty — a wrong tap just says "再試一次" and lets them try again. A
- * correct tap collects the Pokemon into the same Pokedex as matching. The
- * 72-entry pool is reshuffled and cycled to fill the session. */
+ * correct tap just moves on — only the catch game adds Pokemon to the
+ * Pokedex. The 72-entry pool is reshuffled and cycled to fill the session. */
 @Composable
 fun ColorSortScreen(
-    collectedIds: Set<Int>,
-    onCollect: (Int) -> Unit,
     onSpeak: (String) -> Unit,
     sounds: Sounds,
     onBack: () -> Unit,
@@ -170,7 +168,6 @@ fun ColorSortScreen(
     var index by remember(sessionSeed) { mutableStateOf(0) }
     var wrongCategories by remember(sessionSeed) { mutableStateOf(setOf<ColorCategory>()) }
     var answered by remember(sessionSeed) { mutableStateOf(false) }
-    var newCollected by remember(sessionSeed) { mutableStateOf(0) }
     var showComplete by remember(sessionSeed) { mutableStateOf(false) }
     val pokemon = questions.getOrNull(index)
     val answerCategory = pokemon?.let { colorOf(it.id) }
@@ -236,8 +233,6 @@ fun ColorSortScreen(
                             if (category == answerCategory) {
                                 sounds.match()
                                 onSpeak("答對了！${pokemon.name}是${category.label}色的！")
-                                onCollect(pokemon.id)
-                                if (pokemon.id !in collectedIds) newCollected++
                                 answered = true
                             } else {
                                 sounds.flip()
@@ -271,7 +266,7 @@ fun ColorSortScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("🎉 分完 ${questions.size} 題了！", fontSize = 26.sp) },
-            text = { Text("新收集到 $newCollected 隻寶可夢，好棒！", fontSize = 20.sp) },
+            text = { Text("完成了！好棒！", fontSize = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     sessionSeed = System.currentTimeMillis()
